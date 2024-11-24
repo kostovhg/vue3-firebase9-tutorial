@@ -50,6 +50,13 @@ export default class Task {
         this.cOp = opId;
     }
 
+    getOperations() {
+        return this.operations;
+    }
+
+    setOperations(operations) {
+        this.operations = operations;
+    }
 
     
 }
