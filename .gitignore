@@ -28,4 +28,4 @@ coverage
 *.sw?
 
 *.tsbuildinfo
-src\firebase\config.js
+src\firebase\firebase.config.js
