@@ -3,9 +3,9 @@
     imports
 */
 import { ref, onMounted, onUnmounted } from "vue";
-import { RouterView } from "vue-router";
+
 import { addNew, getTodos, delTodo, updateTodo } from "@/firebase";
-import router from "./router";
+import { db } from "@/firebase";
 
 /*
   component specific constants
@@ -30,7 +30,7 @@ const addTodo = async () => {
     Delete todo
 */
 const deleteTodo = async (id) => {
-  await delTodo(id);
+  await delTodo(id); 
   console.log("Todo deleted with ID: ", id);
 };
 
@@ -45,11 +45,12 @@ const toggleDone = async (id) => {
   });
 };
 
+
 /*
   get todos
 */
-onMounted(() => {
-  unsubscribe.value = getTodos((updatedDocuments) => {
+onMounted( () => {
+   unsubscribe.value =  getTodos((updatedDocuments) => {
     todos.value = updatedDocuments;
   });
 });
@@ -60,10 +61,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div id="app">
-    <router-view  />
-  </div>
-  <!-- <div class="badass-todo">
+  <div class="badass-todo">
     <div class="title has-text-centered">Badass Todo</div>
 
     <form @submit.prevent="addTodo">
@@ -84,8 +82,7 @@ onUnmounted(() => {
       </div>
     </form>
     <div
-      v-for="todo in todos"
-      :key="todo.id"
+      v-for="todo in todos" :key="todo.id"
       class="card mb-5"
       :class="{ 'ash-background-success-light': todo.done }"
     >
@@ -117,7 +114,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
 
 <style>

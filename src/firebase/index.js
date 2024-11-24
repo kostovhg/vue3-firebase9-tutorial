@@ -27,6 +27,7 @@ import {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const todosCollectionRef = collection(db, "todos");
+const operationCollectionRef = collection(db, "operations");
 const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
 
 async function getTodos(callback) {
@@ -36,6 +37,21 @@ async function getTodos(callback) {
     const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
       const todos = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       callback(todos);
+    });
+    return unsubscribe;
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    throw e;
+  }
+}
+
+async function getOperations(callback) {
+  try {
+    const querySnapshot = operationCollectionRef;
+
+    const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
+      const operations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      callback(operations);
     });
     return unsubscribe;
   } catch (e) {
@@ -82,5 +98,6 @@ export {
   addTodo as addNew,
   getTodos,
   delTodo,
-  updateTodo
+  updateTodo,
+  getOperations
 }
