@@ -2,31 +2,37 @@
 /*
     imports
 */
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import {
-  collection, onSnapshot,
-  doc,  addDoc,  deleteDoc,  updateDoc,
-  query,  orderBy, limit
+  collection,
+  onSnapshot,
+  doc,
+  addDoc,
+  deleteDoc,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
 } from "firebase/firestore";
+import { addNew, getTodos, delTodo, updateTodo } from "@/firebase";
 import { db } from "@/firebase";
 
-const newTodoContent = ref("");
 /*
- firebase refs
+  component specific constants
 */
-const todosCollectionRef = collection(db, "todos");
-const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
+const todos = ref([]);
+const newTodoContent = ref("");
+const unsubscribe = ref(null);
 
 /*
   add todo
 */
 const addTodo = async () => {
-  await addDoc(todosCollectionRef, {
+  await addNew({
     content: newTodoContent.value,
     done: false,
     date: Date.now(),
   });
-
   newTodoContent.value = "";
 };
 
@@ -34,7 +40,8 @@ const addTodo = async () => {
     Delete todo
 */
 const deleteTodo = async (id) => {
-  await deleteDoc(doc(todosCollectionRef, id));
+  await delTodo(id); 
+  console.log("Todo deleted with ID: ", id);
 };
 
 /*
@@ -43,33 +50,23 @@ const deleteTodo = async (id) => {
 const toggleDone = async (id) => {
   const index = todos.value.findIndex((todo) => todo.id === id);
 
-  await updateDoc(doc(todosCollectionRef, id), {
+  await updateTodo(id, {
     done: !todos.value[index].done,
   });
 };
 
-/*
-  todos
-*/
-const todos = ref([]);
 
 /*
   get todos
 */
-onMounted(async () => {
-  onSnapshot(todosCollectionQuery, (querySnapshot) => {
-    const fbTodos = [];
-    querySnapshot.forEach((doc) => {
-      const todo = {
-        id: doc.id,
-        content: doc.data().content,
-        done: doc.data().done,
-      };
-      fbTodos.push(todo);
-    });
-    todos.value = fbTodos;
-    console.log(todos.value);
+onMounted( () => {
+   unsubscribe.value =  getTodos((updatedDocuments) => {
+    todos.value = updatedDocuments;
   });
+});
+
+onUnmounted(() => {
+  unsubscribe.value();
 });
 </script>
 
@@ -95,7 +92,7 @@ onMounted(async () => {
       </div>
     </form>
     <div
-      v-for="todo in todos"
+      v-for="todo in todos" :key="todo.id"
       class="card mb-5"
       :class="{ 'ash-background-success-light': todo.done }"
     >
