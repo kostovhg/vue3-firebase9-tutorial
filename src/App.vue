@@ -4,30 +4,27 @@
 */
 import { ref, onMounted } from "vue";
 import {
-  collection,
-  query,
-  where,
-  getDoc,
-  onSnapshot,
-  addDoc,
+  collection, onSnapshot,
+  doc,  addDoc,  deleteDoc,  updateDoc,
+  query,  orderBy, limit
 } from "firebase/firestore";
 import { db } from "@/firebase";
 
 const newTodoContent = ref("");
+/*
+ firebase refs
+*/
+const todosCollectionRef = collection(db, "todos");
+const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
 
 /*
   add todo
 */
 const addTodo = async () => {
-  // const newTodo = {
-  //   id: uuidv4(),
-  //   content: newTodoContent.value,
-  //   done: false,
-  // };
-  // todos.value.unshift(newTodo);
-  await addDoc(collection(db, "todos"), {
+  await addDoc(todosCollectionRef, {
     content: newTodoContent.value,
     done: false,
+    date: Date.now(),
   });
 
   newTodoContent.value = "";
@@ -36,52 +33,31 @@ const addTodo = async () => {
 /*
     Delete todo
 */
-const deleteTodo = (id) => {
-  todos.value = todos.value.filter((todo) => todo.id !== id);
+const deleteTodo = async (id) => {
+  await deleteDoc(doc(todosCollectionRef, id));
 };
 
 /*
   toggle todo status
 */
-const toggleDone = (id) => {
+const toggleDone = async (id) => {
   const index = todos.value.findIndex((todo) => todo.id === id);
-  todos.value[index].done = !todos.value[index].done;
+
+  await updateDoc(doc(todosCollectionRef, id), {
+    done: !todos.value[index].done,
+  });
 };
 
 /*
   todos
 */
-const todos = ref([
-  // {
-  //   id: "id1",
-  //   content: "Shave my butt",
-  //   done: false,
-  // },
-  // {
-  //   id: "id2",
-  //   content: "WAsh my butt",
-  //   done: true,
-  // },
-]);
+const todos = ref([]);
 
 /*
   get todos
 */
 onMounted(async () => {
-  // const querySnapshot = await getDocs(collection(db, "todos"));
-  // let fbTodos = [];
-  // querySnapshot.forEach((doc) => {
-  //   // doc.data() is never undefined for query doc snapshots
-  //   console.log(doc.id, " => ", doc.data());
-  //   const todo = {
-  //     id: doc.id,
-  //     content: doc.data().content,
-  //     done: doc.data().done,
-  //   }
-  //   fbTodos.push(todo);
-  // });
-  // todos.value = fbTodos;
-  onSnapshot(collection(db, "todos"), (querySnapshot) => {
+  onSnapshot(todosCollectionQuery, (querySnapshot) => {
     const fbTodos = [];
     querySnapshot.forEach((doc) => {
       const todo = {
