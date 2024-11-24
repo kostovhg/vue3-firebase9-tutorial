@@ -5,8 +5,9 @@ const props = defineProps({
         type: Object,
         required: true
     }
-})
+});
 </script>
+
 <template>
   <div class="card" data-state="not-started">
     <p>Card 1</p>

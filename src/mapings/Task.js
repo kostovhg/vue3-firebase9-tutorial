@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export default class Task {
+export  class Task {
     number = null;
     name = null;
     finished = false;
@@ -60,3 +60,4 @@ export default class Task {
 
     
 }
+

@@ -93,7 +93,7 @@ async function updateTodo(id, data) {
   }
 }
 
-export {
+export  {
   db,
   addTodo as addNew,
   getTodos,
