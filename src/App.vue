@@ -2,23 +2,34 @@
 /*
     imports
 */
-import { ref } from "vue";
-import { v4 as uuidv4 } from "uuid";
-
-
+import { ref, onMounted } from "vue";
+import {
+  collection,
+  query,
+  where,
+  getDoc,
+  onSnapshot,
+  addDoc,
+} from "firebase/firestore";
+import { db } from "@/firebase";
 
 const newTodoContent = ref("");
 
 /*
   add todo
 */
-const addTodo = () => {
-  const newTodo = {
-    id: uuidv4(),
+const addTodo = async () => {
+  // const newTodo = {
+  //   id: uuidv4(),
+  //   content: newTodoContent.value,
+  //   done: false,
+  // };
+  // todos.value.unshift(newTodo);
+  await addDoc(collection(db, "todos"), {
     content: newTodoContent.value,
     done: false,
-  };
-  todos.value.unshift(newTodo);
+  });
+
   newTodoContent.value = "";
 };
 
@@ -29,14 +40,13 @@ const deleteTodo = (id) => {
   todos.value = todos.value.filter((todo) => todo.id !== id);
 };
 
-/* 
+/*
   toggle todo status
-*/ 
+*/
 const toggleDone = (id) => {
   const index = todos.value.findIndex((todo) => todo.id === id);
   todos.value[index].done = !todos.value[index].done;
-}
-
+};
 
 /*
   todos
@@ -53,6 +63,38 @@ const todos = ref([
   //   done: true,
   // },
 ]);
+
+/*
+  get todos
+*/
+onMounted(async () => {
+  // const querySnapshot = await getDocs(collection(db, "todos"));
+  // let fbTodos = [];
+  // querySnapshot.forEach((doc) => {
+  //   // doc.data() is never undefined for query doc snapshots
+  //   console.log(doc.id, " => ", doc.data());
+  //   const todo = {
+  //     id: doc.id,
+  //     content: doc.data().content,
+  //     done: doc.data().done,
+  //   }
+  //   fbTodos.push(todo);
+  // });
+  // todos.value = fbTodos;
+  onSnapshot(collection(db, "todos"), (querySnapshot) => {
+    const fbTodos = [];
+    querySnapshot.forEach((doc) => {
+      const todo = {
+        id: doc.id,
+        content: doc.data().content,
+        done: doc.data().done,
+      };
+      fbTodos.push(todo);
+    });
+    todos.value = fbTodos;
+    console.log(todos.value);
+  });
+});
 </script>
 
 <template>
@@ -86,8 +128,8 @@ const todos = ref([
           <div class="columns is-mobile is-vcentered">
             <div
               class="column"
-              :class="{'has-text-success line-trough' : todo.done }"
-              >
+              :class="{ 'has-text-success line-trough': todo.done }"
+            >
               {{ todo.content }}
             </div>
             <div class="column is-5 has-text-right">
