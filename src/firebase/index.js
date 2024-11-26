@@ -3,10 +3,11 @@ import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebase.config';
 import {
   getFirestore,
-  collection, onSnapshot, getDocs,
+  collection, onSnapshot, getDoc,
   doc, addDoc, deleteDoc, updateDoc,
   query, orderBy, limit
 } from "firebase/firestore";
+
 
 
 // TODO: Add SDKs for Firebase products that you want to use
@@ -29,6 +30,10 @@ const db = getFirestore(app);
 const todosCollectionRef = collection(db, "todos");
 const operationCollectionRef = collection(db, "operations");
 const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
+const getReference = async (str) => {
+  const reference = doc(db, `str`);
+  return reference
+}
 
 async function getTodos(callback) {
   try {
@@ -51,18 +56,36 @@ async function getOperations(callback) {
 
     const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
       const operations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // console.log(operations)
       callback(operations);
     });
     return unsubscribe;
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;
+  } finally {
+    console.log("finally")
   }
 }
 
 async function addTodo(data) {
   try {
     const docRef = await addDoc(todosCollectionRef, data);
+    console.log("Document written with ID: ", docRef.id);
+    return docRef.id;
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    throw e;
+  }
+}
+
+async function addTask(data) {
+  console.log("converted to plant object: ", data.convertToFirestore());
+
+  const toRecord = data.convertToFirestore();
+
+  try {
+    const docRef = await addDoc(todosCollectionRef, toRecord);
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (e) {
@@ -93,9 +116,9 @@ async function updateTodo(id, data) {
   }
 }
 
-export  {
+export {
   db,
-  addTodo as addNew,
+  addTask as addNew,
   getTodos,
   delTodo,
   updateTodo,

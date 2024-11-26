@@ -51,7 +51,9 @@ const toggleDone = async (id) => {
 onMounted(() => {
   unsubscribe.value = getTodos((updatedDocuments) => {
     todos.value = updatedDocuments;
+    console.log(todos.value);
   });
+  console.log(todos.value);
 });
 
 onUnmounted(() => {
@@ -63,7 +65,7 @@ onUnmounted(() => {
   <div id="app">
     <router-view  />
   </div>
-  <!-- <div class="badass-todo">
+  <div class="just-todo">
     <div class="title has-text-centered">Badass Todo</div>
 
     <form @submit.prevent="addTodo">
@@ -117,7 +119,7 @@ onUnmounted(() => {
         </div>
       </div>
     </div>
-  </div> -->
+  </div>
 </template>
 
 <style>

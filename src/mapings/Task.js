@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 
-export  class Task {
+export class Task {
     number = null;
     name = null;
     finished = false;
@@ -11,7 +11,7 @@ export  class Task {
         this.number = number;
         this.name = name;
         this.created = Date.now();
-        operations = ops;
+        this.operations = ops;
     }
 
     getName() {
@@ -39,7 +39,7 @@ export  class Task {
     }
 
     getCreated() {
-        return this.created;    
+        return this.created;
     }
 
     getCurrentOp() {
@@ -58,6 +58,18 @@ export  class Task {
         this.operations = operations;
     }
 
-    
+    convertToFirestore = () => {
+        return {
+            number: this.number,
+            name: this.name,
+            finished: this.finished,
+            // created: Timestamp.fromDate(new Date(this.created)),
+            cOp: "/operations/" + this.cOp,
+            operations: this.operations.map(op => "/operations/" + op)
+        }
+
+    }
+
+
 }
 

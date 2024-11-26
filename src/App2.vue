@@ -61,7 +61,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="badass-todo">
+  <div class="just-todo">
     <div class="title has-text-centered">Badass Todo</div>
 
     <form @submit.prevent="addTodo">
