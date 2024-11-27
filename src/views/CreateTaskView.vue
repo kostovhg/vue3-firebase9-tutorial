@@ -14,9 +14,6 @@ const dummyTask = ref({ number: "", name: "", isValid: false });
 const addTask = () => {
   console.log(dummyTask.value);
   try {
-    // const number = dummyTask.value.number;
-    // const name = dummyTask.value.name;
-    // const ops = selectedOperations.value.sort((a, b) => a - b);
     const newTaskModel = new Task(
       dummyTask.value.number,
       dummyTask.value.name,
@@ -44,21 +41,28 @@ const checkInput = () => {
 };
 
 const handleCheckboxChange = (item) => {
+  console.log("the item is: ", item);
   if (item.isChecked) {
+    console.log("item is checked we will push it to selectedOperations");
     selectedOperations.value.push(item.id);
   } else {
     const index = selectedOperations.value.indexOf(item.id);
+    console.log(
+      "item was checked but now we remove it from selectedOperations"
+    );
     if (index !== -1) {
       selectedOperations.value.splice(index, 1);
     }
   }
-  // console.log(selectedOperations.value);
+  console.log(selectedOperations.value);
 };
 
 const toggleItemCheckbox = (item) => {
   // event.preventDefault();
   item.isChecked = !item.isChecked;
-  console.log("Log from toggleItemCheckbox: ", item.isChecked);
+  handleCheckboxChange(item);
+  // console.log("Log from toggleItemCheckbox: ", item, item.isChecked);
+  
 };
 
 onMounted(() => {
@@ -137,12 +141,13 @@ onUnmounted(() => {
       :class="{
         'ash-background-success-light': selectedOperations.includes(item.id),
       }"
+      @click.prevent="toggleItemCheckbox(item)"
     >
-      <div class="card-content">
+      <div class="card-content" >
         <div class="content">
           <label class="columns is-mobile is-vcentered">
             <div
-            class="column"
+              class="column"
               :class="{
                 'has-text-success ': item.isChecked,
                 'line-trough': !item.isChecked,
@@ -153,7 +158,6 @@ onUnmounted(() => {
             <div class="column is-5 has-text-right">
               <button
                 :class="item.isChecked ? 'is-success' : 'is-cancel'"
-                @click="toggleItemCheckbox(item)"
                 class="button"
               >
                 {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
@@ -165,10 +169,15 @@ onUnmounted(() => {
     </div>
 
     <p class="control">
-          <button type="submit" :disabled="!dummyTask.isValid" class="button is-info" @click="addTask">
-            Add
-          </button>
-        </p>
+      <button
+        type="submit"
+        :disabled="!dummyTask.isValid"
+        class="button is-info"
+        @click="addTask"
+      >
+        Add
+      </button>
+    </p>
   </div>
 </template>
 
