@@ -29,3 +29,7 @@ coverage
 
 *.tsbuildinfo
 src\firebase\firebase.config.js
+*.cache
+index-*.js
+index-*.css
+*.yml
