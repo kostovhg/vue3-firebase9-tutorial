@@ -211,4 +211,8 @@ input[type="checkbox"] {
 .line-trough {
   text-decoration: line-through;
 }
+
+.card-content {
+  font-size: x-large;
+}
 </style>
