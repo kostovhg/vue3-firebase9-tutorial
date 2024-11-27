@@ -100,133 +100,32 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- <div class="just-todo">
-    <div class="title has-text-centered">Add Task</div>
-    <form @submit.prevent="addTask">
-      <div class="field is-grouped is grouped mb-5"></div>
-      <div>
-        <label>Available Operations:</label>
-        <ol>
-          <div class="card mb-5 ash-background-success-light">
-            <div class="card-content">
-              <div class="">
-                <div class="columns is-mobile">
-                  <li v-for="item in operations" :key="item.id" ref="item">
-                    <label
-                      class="column"
-                      :class="{
-                        'checkbox-label': true,
-                        checked: item.isChecked,
-                      }"
-                    >
-                      {{ item.name }}
-                      <input
-                        type="checkbox"
-                        class="column is-5"
-                        :id="item.id"
-                        :value="item.id"
-                        v-model.lazy="item.isChecked"
-                        @change="handleCheckboxChange(item)"
-                      />
-                    </label>
-                    <button
-                      class="button"
-                      type="button"
-                      :class="{
-                        'is-success': item.isChecked,
-                        'is-danger': !item.isChecked,
-                      }"
-                      @click.stop="toggleItemCheckbox(item)"
-                    >
-                      {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
-                    </button>
-                  </li>
-                </div>
-              </div>
-            </div>
-          </div>
-        </ol>
-      </div>
-      <p class="control">
-        <button
-          type="submit"
-          :disabled="!dummyTask.isValid"
-          class="button is-info"
-        >
-          Add
-        </button>
-      </p>
-    </form>
-  </div>
-  <div class="just-todo">
-    <div class="title has-text-centered">Badass Todo</div>
-
-    <form @submit.prevent="addTodo">
-      <div class="field is-grouped is-grouped mb-5">
-        <p class="control is-expanded">
-          <input
-            v-model="dummyTask.name"
-            class="input"
-            type="text"
-            placeholder="Add Name"
-          />
-        </p>
-        <p class="control"></p>
-      </div>
-
-      <div
-        v-for="item in operations"
-        :key="item.id"
-        ref="item"
-        class="card mb-5"
-        :class="{
-          'ash-background-success-light': item.isChecked,
-        }"
-      >
-        <div class="card-content">
-          <div class="content">
-            <div class="columns is-mobile is-vcentered">
-              <div
-                class="column"
-                :class="{
-                  'has-text-success line-trough': item.isChecked}"
-              >
-                {{ todo.content }}
-              </div>
-              <div class="column is-5 has-text-right">
-                <button
-                  :class="todo.done ? 'is-success' : 'is-light'"
-                  @click="toggleItemCheckbox(op.id)"
-                  class="button"
-                >
-                  &check;
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <button :disabled="!dummyTask.isValid" class="button is-info">Add</button>
-    </form>
-  </div> -->
   <div class="just-todo">
     <div class="title has-text-centered">Add new task</div>
 
     <form @submit.prevent="addTask">
-      <div class="field is-grouped is-grouped mb-5">
+      <div class="field is-grouped is grouped mb-5">
+        <p class="control is-expanded">
+          <input
+            v-model.lazy="dummyTask.number"
+            class="input"
+            type="text"
+            id="number"
+            placeholder="Project Number"
+            @change="checkInput"
+            required
+          />
+        </p>
         <p class="control is-expanded">
           <input
             v-model.lazy="dummyTask.name"
             class="input"
             type="text"
-            placeholder="Add a todo"
+            id="name"
+            placeholder="Name"
+            @change="checkInput"
             required
           />
-        </p>
-        <p class="control">
-          <button :disabled="!dummyTask.isValid" class="button is-info">
-            Add
-          </button>
         </p>
       </div>
     </form>
@@ -241,34 +140,35 @@ onUnmounted(() => {
     >
       <div class="card-content">
         <div class="content">
-          <div class="columns is-mobile is-vcentered">
-            <label
-              class="column"
-              :class="{ 'has-text-success line-trough': item.isChecked }"
+          <label class="columns is-mobile is-vcentered">
+            <div
+            class="column"
+              :class="{
+                'has-text-success ': item.isChecked,
+                'line-trough': !item.isChecked,
+              }"
             >
               {{ item.name }}
-            </label>
-              <!-- <imput
-                type="checkbox"
-                :id="item.id"
-                :value="item.id"
-                v-model.lazy="item.isChecked"
-                @change="handleCheckboxChange(item)"
-              /> -->
-              <div class="column is-5 has-text-right">
-                <button
-                  :class="item.isChecked ? 'is-success' : 'is-light'"
-                  @click="toggleItemCheckbox(item)"
-                  class="button"
-                >
-                  {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
-                </button>
-              </div>
-
-          </div>
+            </div>
+            <div class="column is-5 has-text-right">
+              <button
+                :class="item.isChecked ? 'is-success' : 'is-cancel'"
+                @click="toggleItemCheckbox(item)"
+                class="button"
+              >
+                {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
+              </button>
+            </div>
+          </label>
         </div>
       </div>
     </div>
+
+    <p class="control">
+          <button type="submit" :disabled="!dummyTask.isValid" class="button is-info" @click="addTask">
+            Add
+          </button>
+        </p>
   </div>
 </template>
 
