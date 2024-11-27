@@ -22,7 +22,7 @@ const addTask = () => {
       dummyTask.value.name,
       selectedOperations.value.sort((a, b) => a - b)
     );
-    console.log(newTaskModel)
+    console.log(newTaskModel);
     addNew(newTaskModel);
 
     router.push("/");
@@ -52,22 +52,34 @@ const handleCheckboxChange = (item) => {
       selectedOperations.value.splice(index, 1);
     }
   }
-  console.log(selectedOperations.value);
+  // console.log(selectedOperations.value);
+};
+
+const toggleItemCheckbox = (item) => {
+  // event.preventDefault();
+  item.isChecked = !item.isChecked;
+  console.log("Log from toggleItemCheckbox: ", item.isChecked);
 };
 
 onMounted(() => {
   selectedOperations.value = ["1", "2", "11", "15"];
   unsubscribe.value = getOperations((updatedDocuments) => {
     operations.value = updatedDocuments.sort((a, b) => a.id - b.id);
-    for (let i = 0; i < operations.value.length; i++) {
-      // if (selectedOperations.value.includes(operations.value[i].id)) {
-      //   operations.value[i].isChecked = true;
-      // } else {
-      //   operations.value[i].isChecked = false;
-      // }
-      operations.value[i].isChecked = selectedOperations.value.includes(
-        operations.value[i].id
-      );
+    // for (let i = 0; i < operations.value.length; i++) {
+    //   // if (selectedOperations.value.includes(operations.value[i].id)) {
+    //   //   operations.value[i].isChecked = true;
+    //   // } else {
+    //   //   operations.value[i].isChecked = false;
+    //   // }
+    //   operations.value[i].isChecked = selectedOperations.value.includes(
+    //     operations.value[i].id
+    //   );
+    // }
+    for (const id of selectedOperations.value) {
+      const foundItem = operations.value.find((item) => item.id === id);
+      if (foundItem) {
+        foundItem.isChecked = true; // Set initial checked state directly
+      }
     }
     console.log(operations.value);
   });
@@ -89,7 +101,8 @@ onUnmounted(() => {
 
 <template>
   <div class="just-todo">
-    <div class="title has-text-centered">Add Task</div>
+    <div class="title has-text-centered">Add new task</div>
+
     <form @submit.prevent="addTask">
       <div class="field is-grouped is grouped mb-5">
         <p class="control is-expanded">
@@ -115,44 +128,47 @@ onUnmounted(() => {
           />
         </p>
       </div>
-      <div>
-        <label>Available Operations:</label>
-        <ol>
-          <li v-for="item in operations" :key="item.id" ref="item">
-            <label :class="{ 'checkbox-label': true, checked: item.isChecked }">
+    </form>
+    <div
+      v-for="item in operations"
+      :key="item.id"
+      ref="item"
+      class="card mb-5"
+      :class="{
+        'ash-background-success-light': selectedOperations.includes(item.id),
+      }"
+    >
+      <div class="card-content">
+        <div class="content">
+          <label class="columns is-mobile is-vcentered">
+            <div
+            class="column"
+              :class="{
+                'has-text-success ': item.isChecked,
+                'line-trough': !item.isChecked,
+              }"
+            >
               {{ item.name }}
-
-              <input
-                type="checkbox"
-                :id="item.id"
-                :value="item.id"
-                v-model.lazy="item.isChecked"
-                @change="handleCheckboxChange(item)"
-              />
+            </div>
+            <div class="column is-5 has-text-right">
               <button
+                :class="item.isChecked ? 'is-success' : 'is-cancel'"
+                @click="toggleItemCheckbox(item)"
                 class="button"
-                :class="{
-                  'is-success': item.isChecked,
-                  'is-danger': !item.isChecked,
-                }"
-                disabled
               >
                 {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
               </button>
-            </label>
-          </li>
-        </ol>
+            </div>
+          </label>
+        </div>
       </div>
-      <p class="control">
-        <button
-          type="submit"
-          :disabled="!dummyTask.isValid"
-          class="button is-info"
-        >
-          Add
-        </button>
-      </p>
-    </form>
+    </div>
+
+    <p class="control">
+          <button type="submit" :disabled="!dummyTask.isValid" class="button is-info" @click="addTask">
+            Add
+          </button>
+        </p>
   </div>
 </template>
 
