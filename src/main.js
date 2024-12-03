@@ -1,12 +1,19 @@
 import './../node_modules/bulma/css/bulma.min.css'
 
-import { createApp } from 'vue'
-import router from './router'
-import App from './App.vue'
-
+import { createApp } from 'vue';
+import router from './router';
+import App from './App.vue';
+import { fetchOperations } from './firebase';
 
 const app = createApp(App)
 
 app.use(router)
 
-app.mount('#app')
+fetchOperations().then(data => {
+    app.provide('operationsData', data);
+}).finally(() => {
+    app.mount('#app')
+})
+
+
+

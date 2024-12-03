@@ -10,9 +10,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - uses: firebase/action-firebase-login@v3
-        with:
-          creds: ${{ secrets.FIREBASE_TOKEN }}
       - run: npm install
       - run: npm run build
       - run: firebase deploy --only hosting

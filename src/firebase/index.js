@@ -2,34 +2,19 @@
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebase.config';
 import {
-  getFirestore,
-  collection, onSnapshot, getDoc,
+  getFirestore, serverTimestamp,
+  collection, onSnapshot, getDoc, getDocs,
   doc, addDoc, deleteDoc, updateDoc,
   query, orderBy, limit
 } from "firebase/firestore";
-
-
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// in this case it is imported from ./config wich will be in gitignore
-// export const firebaseConfig = {
-//   apiKey: 'your-api-key',
-//   authDomain: 'your-auth-domain.firebaseapp.com',
-//   projectId: 'your-project-id',
-//   storageBucket: 'your-storage-bucket.firebasestorage.app',
-//   messagingSenderId: 'your-messaging-sender-id',
-//   appId: 'your-app-id'
-// };
+import { taskConverter } from '@/mapings/mappings';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const todosCollectionRef = collection(db, "todos");
+const tasksCollectionRef = collection(db, "tasks");
 const operationCollectionRef = collection(db, "operations");
-const todosCollectionQuery = query(todosCollectionRef, orderBy("date", "desc"), limit(10));
+const todosCollectionQuery = query(tasksCollectionRef, orderBy("date", "desc"), limit(10));
 const getReference = async (str) => {
   const reference = doc(db, `str`);
   return reference
@@ -50,27 +35,41 @@ async function getTodos(callback) {
   }
 }
 
-async function getOperations(callback) {
-  try {
-    const querySnapshot = operationCollectionRef;
+// async function getOperations(callback) {
+//   try {
+//     const querySnapshot = operationCollectionRef;
 
-    const unsubscribe = onSnapshot(querySnapshot, (snapshot) => {
-      const operations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // console.log(operations)
-      callback(operations);
-    });
-    return unsubscribe;
-  } catch (e) {
-    console.error("Error adding document: ", e);
-    throw e;
-  } finally {
-    console.log("finally")
+//     const unsubscribe = get(querySnapshot, (snapshot) => {
+//       const operations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+//       console.log('Printing operations from firebase/index/getOperations() - snapshot', operations)
+//       // callback(operations);
+//     });
+//     console.log('Printing operations from firebase/index/getOperations() - unsubscribe', unsubscribe)
+//     return unsubscribe;
+//   } catch (e) {
+//     console.error("Error adding document: ", e);
+//     throw e;
+//   } finally {
+//     console.log("finally")
+//   }
+// }
+
+async function fetchOperations() {
+  console.log("fetching operations");
+  const docsSnap = await getDocs(operationCollectionRef);
+  if (docsSnap.empty) {
+    // console.log("No operations found");
+    return []
+  } else {
+    const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
+    return operations
   }
 }
 
 async function addTodo(data) {
   try {
-    const docRef = await addDoc(todosCollectionRef, data);
+    const docRef = await addDoc(tasksCollectionRef, data);
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (e) {
@@ -79,13 +78,14 @@ async function addTodo(data) {
   }
 }
 
-async function addTask(data) {
-  console.log("converted to plant object: ", data.convertToFirestore());
+async function addTask(task) {
+  console.log("converted to plant object: ", task.convertToFirestore());
 
-  const toRecord = data.convertToFirestore();
+  const toRecord = task.convertToFirestore();
+  // const toRecord = doc(db, "tasks").withConverter(taskConverter);
 
   try {
-    const docRef = await addDoc(todosCollectionRef, toRecord);
+    const docRef = await addDoc(tasksCollectionRef, toRecord);
     console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (e) {
@@ -96,7 +96,7 @@ async function addTask(data) {
 
 async function delTodo(id) {
   try {
-    const docRef = doc(todosCollectionRef, id);
+    const docRef = doc(tasksCollectionRef, id);
     await deleteDoc(docRef);
     console.log("Document deleted with ID: ", id);
   } catch (e) {
@@ -107,7 +107,7 @@ async function delTodo(id) {
 
 async function updateTodo(id, data) {
   try {
-    const docRef = doc(todosCollectionRef, id);
+    const docRef = doc(tasksCollectionRef, id);
     await updateDoc(docRef, data);
     console.log("Document updated with ID: ", id);
   } catch (e) {
@@ -118,9 +118,9 @@ async function updateTodo(id, data) {
 
 export {
   db,
-  addTask as addNew,
+  addTask,
   getTodos,
   delTodo,
   updateTodo,
-  getOperations
+  fetchOperations
 }
