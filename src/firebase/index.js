@@ -5,7 +5,7 @@ import {
   getFirestore, serverTimestamp,
   collection, onSnapshot, getDoc, getDocs,
   doc, addDoc, deleteDoc, updateDoc,
-  query, orderBy, limit
+  query, orderBy, limit, where
 } from "firebase/firestore";
 import { taskConverter } from '@/mapings/mappings';
 
@@ -55,9 +55,10 @@ async function getTodos(callback) {
 // }
 
 async function getTasks(opId) {
-  const q = query(tasksCollectionRef, where("cOp", "==", opId));
-
-  try{
+  const q = query(tasksCollectionRef, 
+    where("cOp", "in", [doc(db, "operations", opId),  `/operations/${opId}`]));
+  try {
+    // console.log('Entered in try block in getTasks')
     const docsSnap = await getDocs(q);
     const tasks = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     console.log('Printing tasks from firebase/index/getTasks() - tasks', tasks)

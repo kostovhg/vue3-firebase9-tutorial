@@ -1,25 +1,42 @@
 <script setup>
 import { RouterView, useRoute } from "vue-router";
-import { ref, onMounted, onUnmounted, inject } from "vue";
+import { ref, onMounted, onUnmounted, inject, defineComponent } from "vue";
 import { Task } from "@/mapings/mappings";
 import { getTasks } from "@/firebase";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 
-const operationId = useRoute().params.oId;
+const route = useRoute();
+const operationId = ref();
+const toast = useToast;
 const opName = ref("");
 const operationTasks = ref([]);
 const ops = ref([]);
 
 onMounted(async () => {
-  ops.value = inject("operationsData");
-  console.log("Thats are the operationsData ijected", ops.value);
-  console.log(operationId);
-  opName.value = ops.value.find((item) => item.id === operationId).name;
-  console.log(opName.value);
-  // operationTasks.value = fetchedTaksks;
+  ops.value = await inject("operationsData");
+  operationId.value = route.params.oId;
 
-  operationTasks.value = await getTasks(operationId);
+  console.log("Thats are the operationsData ijected", ops.value);
+  console.log('and thad is route.params.oId',  route.params.oId);
+  const foundedOp = ops.value.find((item) => item.id === operationId.value);
+  if (foundedOp) {
+    opName.value = foundedOp.name;
+  } else {
+    opName.value = "None";
+  }
+  console.log(opName.value);
+
+
+  try {
+    const response = await getTasks(operationId).then((result) => result);
+    console.log(response);
+    operationTasks.value = response;
+  } catch (e) {
+    console.log('Soemthing wrong with getting tasks', e);
+  } finally {
+    console.log("Finally task async finished");
+  }
 });
 </script>
 
