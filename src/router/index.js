@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import ListOperationsView from '@/views/ListOperationsView.vue';
 import ListTasksView from '@/views/ListTasksView.vue';
 import CreateTaskView from '@/views/CreateTaskView.vue';
+import ListAllTasksView from '@/views/ListAllTasksView.vue';
 
 
 const router = createRouter({
@@ -9,13 +10,19 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'list-tasks',
-            component: ListTasksView,
+            name: 'choose-operation',
+            component: ListOperationsView,
         },
         {
-            path: '/operations',
-            name: 'operations',
-            component: ListOperationsView,
+            path: '/tasks/:oId',
+            name: 'operation-tasks',
+            component: ListTasksView,
+            props: true
+        },
+        {
+            path: '/tasks',
+            name: 'tasks',
+            component: ListAllTasksView,
         },
         {
             path: '/create',

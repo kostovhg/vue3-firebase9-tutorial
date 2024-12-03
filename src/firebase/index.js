@@ -13,7 +13,7 @@ import { taskConverter } from '@/mapings/mappings';
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const tasksCollectionRef = collection(db, "tasks");
-const operationCollectionRef = collection(db, "operations");
+const operationCollectionRef = collection(db, "operations")
 const todosCollectionQuery = query(tasksCollectionRef, orderBy("date", "desc"), limit(10));
 const getReference = async (str) => {
   const reference = doc(db, `str`);
@@ -53,6 +53,21 @@ async function getTodos(callback) {
 //     console.log("finally")
 //   }
 // }
+
+async function getTasks(opId) {
+  const q = query(tasksCollectionRef, where("cOp", "==", opId));
+
+  try{
+    const docsSnap = await getDocs(q);
+    const tasks = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    console.log('Printing tasks from firebase/index/getTasks() - tasks', tasks)
+    return tasks
+  } catch (e) {
+    console.error("Error fetching tasks document: ", e);
+    return [];
+  }
+}
+
 
 async function fetchOperations() {
   console.log("fetching operations");
@@ -119,7 +134,7 @@ async function updateTodo(id, data) {
 export {
   db,
   addTask,
-  getTodos,
+  getTasks,
   delTodo,
   updateTodo,
   fetchOperations

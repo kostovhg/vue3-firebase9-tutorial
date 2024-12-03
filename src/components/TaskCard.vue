@@ -1,10 +1,9 @@
-
 <script setup>
 const props = defineProps({
-    task: {
-        type: Object,
-        required: true
-    }
+  task: {
+    type: Object,
+    required: true,
+  },
 });
 </script>
 
