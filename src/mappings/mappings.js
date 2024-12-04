@@ -49,7 +49,7 @@ export class Task {
     cOp = 0;
     operations = [];
 
-    constructor(number, client, name, ops) {
+    constructor(number, name, client, ops) {
         this.number = number;
         this.client = client;
         this.name = name;

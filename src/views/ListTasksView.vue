@@ -19,6 +19,11 @@ const state = reactive({
   isLoading: true,
 });
 
+const isStarted = (taskId) => {
+  // mocking database return
+  return false;
+};
+
 onMounted(async () => {
   ops.value = await inject("operationsData");
   operationId.value = route.params.oId;
@@ -37,6 +42,18 @@ onMounted(async () => {
     const response = await getTasks(operationId);
     // Debug print:
     console.log(response);
+    response.forEach((t) => {
+      operationTasks.value.push({
+        id: t.id,
+        started: isStarted(t.id),
+        cOp: t.cOp,
+        name: t.name,
+        number: t.number,
+        client: t.client,
+        finished: t.finished,
+        started: isStarted(t.id),
+      });
+    });
     operationTasks.value = response;
   } catch (e) {
     console.log("Something wrong with getting tasks", e);
@@ -48,19 +65,33 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="panel">
-    <h1 class="panel-heading">List Tasks for {{ opName }}</h1>
-  </div>
+  <section class="section">
+    <div class="navbar is-dark is-fixed-top is">
+      <div class="panel">
+        <h1 class="panel-heading">List Tasks for {{ opName }}</h1>
+      </div>
+    </div>
+  </section>
   <!-- Show loading spinner while loading is true -->
-  <div v-if="state.isLoading">
-    <PulseLoader />
-  </div>
+  <section class="section">
+    <div v-if="state.isLoading">
+      <PulseLoader />
+    </div>
 
-  <!-- Show list of tasks when done loading -->
-  <div v-else class="container">
-    <!-- <li v-for="task in operationTasks" :key="task.id">
-      {{ task.name }}
-    </li> -->
-    <TaskCard v-for="task in operationTasks" :key="task.id" :task="task" />
-  </div>
+    <!-- Show list of tasks when done loading -->
+    <div v-else class="is-multiline">
+      <TaskCard v-for="task in operationTasks" :key="task.id" :task="task" />
+    </div>
+  </section>
 </template>
+
+<style scoped>
+/* .panel {
+  position: fixed;
+  z-index: 9999;
+  position: absolute;
+  left: 0px;
+  top: 0px; 
+  width: 100%;
+} */
+</style>

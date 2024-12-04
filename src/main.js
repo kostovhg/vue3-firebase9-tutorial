@@ -4,6 +4,7 @@ import { createApp } from 'vue';
 import router from './router';
 import App from './App.vue';
 import { fetchOperations } from './firebase';
+import 'primeicons/primeicons.css';
 
 const app = createApp(App)
 
