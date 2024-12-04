@@ -39,7 +39,7 @@ onMounted(async () => {
       </button>
 
       <button
-        :class="task.started ? 'is-success' : 'os-cancel disabled'"
+        :class="task.started ? 'is-danger' : 'os-cancel disabled'"
         class="button column mx-4 px-6 is-size-6-mobile"
         :disabled="task.started ? false : true"
         @click.prevent="passTask(task.id)"
