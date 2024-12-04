@@ -1,10 +1,10 @@
 <script setup>
 import { RouterView, useRoute } from "vue-router";
 import { ref, onMounted, onUnmounted, inject, defineComponent } from "vue";
-import { Task } from "@/mapings/mappings";
-import { getTasks } from "@/firebase";
+import { Task } from "@/mappings/mappings";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
+import { getTasks } from "@/firebase";
 
 const route = useRoute();
 const operationId = ref();
@@ -17,23 +17,27 @@ onMounted(async () => {
   ops.value = await inject("operationsData");
   operationId.value = route.params.oId;
 
-  console.log("Thats are the operationsData ijected", ops.value);
-  console.log('and thad is route.params.oId',  route.params.oId);
+  // Debugging print:
+  // console.log("Thats are the operationsData injected", ops.value);
+  // console.log("and thad is route.params.oId", route.params.oId);
   const foundedOp = ops.value.find((item) => item.id === operationId.value);
   if (foundedOp) {
     opName.value = foundedOp.name;
   } else {
     opName.value = "None";
   }
-  console.log(opName.value);
-
 
   try {
-    const response = await getTasks(operationId).then((result) => result);
+    // const response = await getTasks(operationId).then((result) => {
+    //   console.log("from promise: ", result);
+    //   return result;
+    // });
+    const response = await getTasks(operationId);
+    // Debug print:
     console.log(response);
     operationTasks.value = response;
   } catch (e) {
-    console.log('Soemthing wrong with getting tasks', e);
+    console.log("Something wrong with getting tasks", e);
   } finally {
     console.log("Finally task async finished");
   }

@@ -7,7 +7,7 @@ import {
   doc, addDoc, deleteDoc, updateDoc,
   query, orderBy, limit, where
 } from "firebase/firestore";
-import { taskConverter } from '@/mapings/mappings';
+import { taskConverter } from '@/mappings/mappings';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -55,13 +55,14 @@ async function getTodos(callback) {
 // }
 
 async function getTasks(opId) {
-  const q = query(tasksCollectionRef, 
-    where("cOp", "in", [doc(db, "operations", opId),  `/operations/${opId}`]));
+
+  const q = query(tasksCollectionRef,
+    where("cOp", "==", `/operations/${opId.value}`));
+
+  console.log('Log from passing query in getTasks - q', q)
   try {
-    // console.log('Entered in try block in getTasks')
     const docsSnap = await getDocs(q);
     const tasks = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log('Printing tasks from firebase/index/getTasks() - tasks', tasks)
     return tasks
   } catch (e) {
     console.error("Error fetching tasks document: ", e);

@@ -17,7 +17,7 @@ const router = createRouter({
             path: '/tasks/:oId',
             name: 'operation-tasks',
             component: ListTasksView,
-            props: true
+            // props: true
         },
         {
             path: '/tasks',

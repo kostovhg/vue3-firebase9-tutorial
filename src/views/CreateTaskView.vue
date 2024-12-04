@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, onUnmounted, reactive, inject } from "vue";
 import { useRouter } from "vue-router";
-import { Task } from "@/mapings/mappings";
+import { Task } from "@/mappings/mappings";
 import { addTask } from "@/firebase";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
