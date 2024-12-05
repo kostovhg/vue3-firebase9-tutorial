@@ -9,10 +9,18 @@ const props = defineProps({
     required: true,
   },
 });
+const task = ref(props.task);
 
-const passTask = (id) => {
-  console.log("passing task", id);
-  props.task.finished = true;
+const emitEvents = defineEmits(["toggle-working", "finish-task"]);
+
+const toggleEvent = () => {
+  task.value.started = !task.value.started;
+  emitEvents("toggle-working", props.task.id);
+};
+
+const passTask = () => {
+  task.value.finished = true;
+  emitEvents("finish-task", props.task.id);
 };
 
 onMounted(async () => {
@@ -29,10 +37,17 @@ onMounted(async () => {
         </header>
       </div>
 
+      <!-- Here is the mimication of the start/stop button 
       <button
         class="button column mx-4 mb-3 px-6 is-size-6-mobile"
         :class="!task.started ? 'is-success' : 'is-warning'"
         @click.prevent="task.started = !task.started"
+      > -->
+      <!-- Here we will try with emit -->
+      <button
+        class="button column mx-4 mb-3 px-6 is-size-6-mobile"
+        :class="!task.started ? 'is-success' : 'is-warning'"
+        @click="toggleEvent(task.id)"
       >
         {{ `${task.started ? " Pause " : " Start "}` }}
         <i class="pi" :class="task.started ? `pi-pause` : `pi-play`"></i>
@@ -42,7 +57,7 @@ onMounted(async () => {
         :class="task.started ? 'is-danger' : 'os-cancel disabled'"
         class="button column mx-4 px-6 is-size-6-mobile"
         :disabled="task.started ? false : true"
-        @click.prevent="passTask(task.id)"
+        @click.prevent="passTask()"
       >
         {{ `Finish ${task.started ? " ✓ " : " ✗ "}` }}
       </button>

@@ -19,6 +19,14 @@ const state = reactive({
   isLoading: true,
 });
 
+const toggleWorking = (tid) => {
+  alert("switched");
+};
+
+const toggleFinished = (tid) => {
+  alert("finished");
+};
+
 const isStarted = (taskId) => {
   // mocking database return
   return false;
@@ -80,7 +88,12 @@ onMounted(async () => {
 
     <!-- Show list of tasks when done loading -->
     <div v-else class="is-multiline">
-      <TaskCard v-for="task in operationTasks" :key="task.id" :task="task" />
+      <TaskCard
+        v-for="task in operationTasks"
+        :key="task.id"
+        :task="task"
+        @toggle-working="toggleWorking(task.id)"
+      />
     </div>
   </section>
 </template>

@@ -1,7 +1,6 @@
 <script setup>
 import router from "@/router";
-import { ref, inject } from "vue";
-import { onMounted, onUnmounted } from "vue";
+import { ref, inject, onMounted, onUnmounted } from "vue";
 import { RouterView } from "vue-router";
 
 const operationsList = ref([]);

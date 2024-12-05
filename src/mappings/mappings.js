@@ -14,6 +14,7 @@ export const taskConverter = {
             number: task.number,
             name: task.name,
             finished: task.finished,
+            client: task.client,
             created: Timestamp.fromDate(new Date(task.created)),
             cOp: task.cOp,
             operations: task.operations.map(op => op)
@@ -46,7 +47,7 @@ export class Task {
     name = null;
     finished = false;
     created = null;
-    cOp = 0;
+    cOp = 1;
     operations = [];
 
     constructor(number, name, client, ops) {
