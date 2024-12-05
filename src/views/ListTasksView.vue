@@ -4,7 +4,7 @@ import { ref, onMounted, onUnmounted, inject, reactive } from "vue";
 import { Task } from "@/mappings/mappings";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import { getTasks } from "@/firebase";
+import { getTasks, startWorking, pauseWorking, finishWorking } from "@/firebase";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
 import TaskCard from "@/components/TaskCard.vue";
 
@@ -20,11 +20,28 @@ const state = reactive({
 });
 
 const toggleWorking = (tid) => {
+  startWorking(tid, operationId.value);
   alert("switched");
 };
 
 const toggleFinished = (tid) => {
-  alert("finished");
+  const processedTask = operationTasks.value.find((item) => item.id === tid);
+  if (confirm(`Are you sure that task ${processedTask.number} is finished?`)) {
+    // mimic database update
+    alert("finished");
+  } else {
+    processedTask.finished = false;
+  }
+  /*
+  it should be something like this:
+   axios.delete('/api/artist/'+id)
+                .then(resp => {
+                    this.artists.data.splice(index, 1);
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+  */
 };
 
 const isStarted = (taskId) => {
@@ -93,6 +110,7 @@ onMounted(async () => {
         :key="task.id"
         :task="task"
         @toggle-working="toggleWorking(task.id)"
+        @finish-task="toggleFinished(task.id)"
       />
     </div>
   </section>

@@ -4,10 +4,10 @@ import { firebaseConfig } from './firebase.config';
 import {
   getFirestore, serverTimestamp,
   collection, onSnapshot, getDoc, getDocs,
-  doc, addDoc, deleteDoc, updateDoc,
+  doc, addDoc, setDoc, deleteDoc, updateDoc,
   query, orderBy, limit, where
 } from "firebase/firestore";
-import { taskConverter } from '@/mappings/mappings';
+import { taskConverter, Task, } from '@/mappings/mappings';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -56,8 +56,9 @@ async function getTodos(callback) {
 
 async function getTasks(opId) {
 
+  console.log(typeof(opId.value), opId.value)
   const q = query(tasksCollectionRef,
-    where("cOp", "==", `/operations/${opId.value}`));
+    where("cOp", "==", opId.value));
 
   console.log('Log from passing query in getTasks - q', q)
   try {
@@ -69,6 +70,8 @@ async function getTasks(opId) {
     return [];
   }
 }
+
+
 
 
 async function fetchOperations() {
@@ -99,16 +102,54 @@ async function addTask(task) {
   console.log("converted to plant object: ", task.convertToFirestore());
 
   const toRecord = task.convertToFirestore();
+  toRecord.createdAt = serverTimestamp();
   // const toRecord = doc(db, "tasks").withConverter(taskConverter);
 
   try {
-    const docRef = await addDoc(tasksCollectionRef, toRecord);
-    console.log("Document written with ID: ", docRef.id);
-    return docRef.id;
+    // const docRef = await addDoc(tasksCollectionRef, toRecord);
+    // console.log("Document written with ID: ", docRef.id);
+    // return docRef.id;
+    const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;
   }
+}
+
+async function getDocRef(id){
+
+  return doc(db, 'tasks', id);
+}
+
+async function startWorking(id, oId) {
+  
+  try {
+    const docRef = {}
+    getDocRef(id).then((docSnap) => {
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap);
+        docRef = docSnap;
+      } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+      }
+    });
+
+    console.log('pront from index.js/startWorking',docRef)
+    await updateDoc(docRef, { started: true });
+    console.log("Document updated with ID: ", id);
+  } catch (e) {
+    console.error("Error adding document: ", e);
+    throw e;
+  }
+}
+
+async function pauseWorking(id, oId) {
+  // todo: implement pauseWorking
+}
+
+async function finishWorking(id, oId) {
+  // todo: implement finishWorking
 }
 
 async function delTodo(id) {
@@ -139,5 +180,8 @@ export {
   getTasks,
   delTodo,
   updateTodo,
-  fetchOperations
+  fetchOperations,
+  startWorking,
+  pauseWorking,
+  finishWorking
 }

@@ -52,6 +52,7 @@ export class Task {
 
     constructor(number, name, client, ops) {
         this.number = number;
+        this.projectNumber = number.split('-')[0];
         this.client = client;
         this.name = name;
         this.created = Date.now();
@@ -102,15 +103,32 @@ export class Task {
         this.operations = operations;
     }
 
+    getOperationsAsObject(ops) {
+        const theObj = {};
+
+        ops.forEach(op => {
+            theObj.push({ op: [null, null]});
+        });
+        console.log(theObj.value)
+        return theObj.value;
+    }
+
     convertToFirestore = () => {
-        return {
+        const forRecord = {
             number: this.number,
             client: this.client,
             name: this.name,
             finished: this.finished,
-            cOp: "/operations/" + this.cOp,
-            operations: this.operations.map(op => "/operations/" + op)
+            cOp:  this.cOp,
+            projectNumber: this.number.split('-')[0],
+            operations: {},       
         };
+
+        this.operations.forEach(op => {
+            forRecord.operations[op] = [{start: null, finish: null}];
+        });
+        console.log(forRecord);
+        return forRecord
     };
 }
 
