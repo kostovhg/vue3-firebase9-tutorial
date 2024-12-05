@@ -42,13 +42,23 @@ export const taskConverter = {
  * @class Task
  */
 export class Task {
-    number = null;
-    client = null;
-    name = null;
-    finished = false;
-    created = null;
-    cOp = 1;
-    operations = [];
+    number = null; // should be in format "J.YY.NNN-nn" or "J.SP.YY.NNN-nn-nn"
+    client = null; // client name
+    name = null; // task name or desciption
+    finished = false;   // only when ready for shipping
+    created = null; // should be serverTimestamp
+    cOp = "1"; // current state of operations 
+    operations = []; // list of operations in format:
+    // [ 
+    //     {opID: [
+    //         {start: timestamp, stop: timestamp}, 
+    //         {start: timestamp, stop: timestamp}
+    //     ]}, 
+    //     {opID: [
+    //         {start: timestamp, stop:timestamp}]}
+    // ]
+    // that should allow different intervals for each operation to be recorded
+    // in case of pause in some of the operations.
 
     constructor(number, name, client, ops) {
         this.number = number;
@@ -56,62 +66,24 @@ export class Task {
         this.client = client;
         this.name = name;
         this.created = Date.now();
-        this.operations = ops;
-    }
-
-    getName() {
-        return this.name;
-    }
-
-    setName(name) {
-        this.name = name;
-    }
-
-    getNumber() {
-        return this.number;
-    }
-
-    setNumber(number) {
-        this.number = number;
-    }
-
-    isFinished() {
-        return this.finished;
-    }
-
-    finish() {
-        this.finished = Date.now();
-    }
-
-    getCreated() {
-        return this.created;
-    }
-
-    getCurrentOp() {
-        return this.cOp;
-    }
-
-    setCurrentOp(opId) {
-        this.cOp = opId;
+        this.operations = ops.map(opID => ({ 
+            [opID]: [{start: null, stop: null}]}
+        ));
     }
 
     getOperations() {
         return this.operations;
     }
 
-    setOperations(operations) {
-        this.operations = operations;
-    }
+    // getOperationsAsObject(ops) {
+    //     const theObj = {};
 
-    getOperationsAsObject(ops) {
-        const theObj = {};
-
-        ops.forEach(op => {
-            theObj.push({ op: [null, null]});
-        });
-        console.log(theObj.value)
-        return theObj.value;
-    }
+    //     ops.forEach(op => {
+    //         theObj.push({ op: [null, null]});
+    //     });
+    //     console.log(theObj.value)
+    //     return theObj.value;
+    // }
 
     convertToFirestore = () => {
         const forRecord = {
@@ -121,13 +93,9 @@ export class Task {
             finished: this.finished,
             cOp:  this.cOp,
             projectNumber: this.number.split('-')[0],
-            operations: {},       
+            operations: this.operations       
         };
-
-        this.operations.forEach(op => {
-            forRecord.operations[op] = [{start: null, finish: null}];
-        });
-        console.log(forRecord);
+        console.log('Print from Task/convertToFirestore()',forRecord);
         return forRecord
     };
 }

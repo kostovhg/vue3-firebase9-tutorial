@@ -20,6 +20,7 @@ const state = reactive({
 });
 
 const toggleWorking = (tid) => {
+  console.log("succesfully receive emit from child", tid);
   startWorking(tid, operationId.value);
   alert("switched");
 };
@@ -53,9 +54,6 @@ onMounted(async () => {
   ops.value = await inject("operationsData");
   operationId.value = route.params.oId;
 
-  // Debugging print:
-  // console.log("Thats are the operationsData injected", ops.value);
-  // console.log("and thad is route.params.oId", route.params.oId);
   const foundedOp = ops.value.find((item) => item.id === operationId.value);
   if (foundedOp) {
     opName.value = foundedOp.name;

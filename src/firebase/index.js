@@ -56,7 +56,7 @@ async function getTodos(callback) {
 
 async function getTasks(opId) {
 
-  console.log(typeof(opId.value), opId.value)
+  console.log(typeof (opId.value), opId.value)
   const q = query(tasksCollectionRef,
     where("cOp", "==", opId.value));
 
@@ -99,16 +99,13 @@ async function addTodo(data) {
 }
 
 async function addTask(task) {
+
   console.log("converted to plant object: ", task.convertToFirestore());
 
   const toRecord = task.convertToFirestore();
   toRecord.createdAt = serverTimestamp();
-  // const toRecord = doc(db, "tasks").withConverter(taskConverter);
 
   try {
-    // const docRef = await addDoc(tasksCollectionRef, toRecord);
-    // console.log("Document written with ID: ", docRef.id);
-    // return docRef.id;
     const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -116,27 +113,42 @@ async function addTask(task) {
   }
 }
 
-async function getDocRef(id){
-
-  return doc(db, 'tasks', id);
+async function getDocRef(id) {
+  return doc(db, 'tasks', `${id}`);
 }
 
 async function startWorking(id, oId) {
-  
-  try {
-    const docRef = {}
-    getDocRef(id).then((docSnap) => {
-      if (docSnap.exists()) {
-        console.log("Document data:", docSnap);
-        docRef = docSnap;
-      } else {
-        // doc.data() will be undefined in this case
-        console.log("No such document!");
-      }
-    });
 
-    console.log('pront from index.js/startWorking',docRef)
-    await updateDoc(docRef, { started: true });
+  try {
+    var docRef = doc(db, 'tasks', `${id}`);
+    const docSnap = await getDoc(docRef);
+    var startRecord = { start: serverTimestamp(), stop: null };
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      console.log('pront from index.js/startWorking data', JSON.stringify(data))
+      const dataOperations = data.operations;
+      console.log('pront from index.js/startWorking operations', dataOperations)
+      const operationIndex = dataOperations.findIndex(op => Object.keys(op)[0] === oId);
+      console.log('pront from index.js/startWorking operationIndex', operationIndex)
+      const intervalIndex = dataOperations
+      console.log('pront from index.js/startWorking intervalIndex', intervalIndex)
+      if (operationIndex !== -1) {
+        const lastTimestampIndex = dataOperations[operationIndex][oId].length - 1;
+        console.log('pront from index.js/startWorking operations[operationIndex][oId].length - 1', lastTimestampIndex)
+
+        dataOperations[operationIndex][oId][lastTimestampIndex].start = getClientTimestamp()
+
+        await updateDoc(docRef, {
+          operations: dataOperations,
+          modifiedAt: serverTimestamp()
+        });
+      } else {
+        console.log('Operation not found');
+      }
+    } else {
+      console.log('Document not Found')
+    }
     console.log("Document updated with ID: ", id);
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -173,6 +185,12 @@ async function updateTodo(id, data) {
     throw e;
   }
 }
+
+const getClientTimestamp = () => {
+  const now = Date.now();
+  return { seconds: now / 1000, nanoseconds: (now % 1000) * 1000000 };
+}
+
 
 export {
   db,
