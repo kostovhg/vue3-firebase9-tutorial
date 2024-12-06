@@ -1,4 +1,3 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from './firebase.config';
 import {
@@ -16,7 +15,7 @@ const tasksCollectionRef = collection(db, "tasks");
 const operationCollectionRef = collection(db, "operations")
 const todosCollectionQuery = query(tasksCollectionRef, orderBy("date", "desc"), limit(10));
 const getReference = async (str) => {
-  const reference = doc(db, `str`);
+  const reference = doc(db, str);
   return reference
 }
 
@@ -118,41 +117,90 @@ async function getDocRef(id) {
 }
 
 async function startWorking(id, oId) {
+  /* Old code - needs fixes and optimization */
+  // try {
+  //   var docRef = doc(db, 'tasks', `${id}`);
+  //   const docSnap = await getDoc(docRef);
+  //   var startRecord = { start: serverTimestamp(), stop: null };
 
-  try {
-    var docRef = doc(db, 'tasks', `${id}`);
-    const docSnap = await getDoc(docRef);
-    var startRecord = { start: serverTimestamp(), stop: null };
+  //   if (docSnap.exists()) {
+  //     const data = docSnap.data();
+  //     console.log('print from index.js/startWorking data', JSON.stringify(data))
+  //     const dataOperations = data.operations;
+  //     console.log('print from index.js/startWorking operations', dataOperations)
+  //     const operationIndex = dataOperations.findIndex(op => Object.keys(op)[0] === oId);
+  //     console.log('print from index.js/startWorking operationIndex', operationIndex)
+  //     const intervalIndex = dataOperations
+  //     console.log('print from index.js/startWorking intervalIndex', intervalIndex)
+  //     if (operationIndex !== -1) {
+  //       console.log('Operations for data')
+  //       const lastTimestampIndex = dataOperations[operationIndex][oId].length - 1;
+  //       console.log('pront from index.js/startWorking operations[operationIndex][oId].length - 1', lastTimestampIndex)
 
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      console.log('pront from index.js/startWorking data', JSON.stringify(data))
-      const dataOperations = data.operations;
-      console.log('pront from index.js/startWorking operations', dataOperations)
-      const operationIndex = dataOperations.findIndex(op => Object.keys(op)[0] === oId);
-      console.log('pront from index.js/startWorking operationIndex', operationIndex)
-      const intervalIndex = dataOperations
-      console.log('pront from index.js/startWorking intervalIndex', intervalIndex)
-      if (operationIndex !== -1) {
-        const lastTimestampIndex = dataOperations[operationIndex][oId].length - 1;
-        console.log('pront from index.js/startWorking operations[operationIndex][oId].length - 1', lastTimestampIndex)
+  //       dataOperations[operationIndex][oId][lastTimestampIndex].append(startRecord);
 
-        dataOperations[operationIndex][oId][lastTimestampIndex].start = getClientTimestamp()
+  //       await updateDoc(docRef, {
+  //         operations: dataOperations,
+  //         modifiedAt: serverTimestamp()
+  //       });
+  //     } else {
+  //       console.log('Operation not found');
+  //     }
+  //   } else {
+  //     console.log('Document not Found')
+  //   }
+  //   console.log("Document updated with ID: ", id);
+  // } catch (e) {
+  //   console.error("Error adding document: ", e);
+  //   throw e;
+  // }
 
-        await updateDoc(docRef, {
-          operations: dataOperations,
-          modifiedAt: serverTimestamp()
-        });
-      } else {
-        console.log('Operation not found');
-      }
-    } else {
-      console.log('Document not Found')
-    }
-    console.log("Document updated with ID: ", id);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-    throw e;
+  /* testing code */
+  //   const currentTaskRef = await getDoc(doc(db, 'tasks', id));
+  //   const currentTaskOperationsRef = currentTaskRef.data().operations;
+
+  //   console.log('print from index.js/startWorking currentOperationRef', currentTaskRef.data())
+  //   currentTaskOperationsRef.forEach((element, index) => {
+  //     // if (element[oId]) {
+  //       console.log('element: ', element );
+  //       console.log('element records', Object.keys(element)[0])
+  //     // }
+  //   });
+  //   const currentOp = currentTaskOperationsRef
+  //     .find(element => Object.keys(element)[0] === oId)[oId];
+  //     console.log('record for current operation is started' , currentOp[0].start !== null) && currentOp[0].stop === null;
+  //   console.log('print from index.js/startWorking currentTaskOperationsArr', currentTaskOperationsRef)   
+  //   if (currentTaskRef.exists()) {
+  //     console.log('print from index.js/startWorking currentOperationRef.exists()', currentTaskRef.exists())
+  //     const data = currentTaskRef.data();
+  //     console.log('print from index.js/startWorking data', data)
+  // }
+
+  /* Another testing code*/
+  const docRef = doc(db, 'tasks', `${id}`);
+  const docSnap = await getDoc(docRef);
+  const data = docSnap.data();
+  const dataOperations = data.operations; // return object {1: .., 2: ..}
+  console.log('print from index.js/startWorking operations', dataOperations)
+  // const firstEmptyOperIndex = (dOps) => {
+  //   for (let prop in dOps) {
+  //     console.log('print before hasOwnProperty', prop)
+  //     if (Object.prototype.hasOwnProperty.call(dOps, prop)) {
+  //       console.log(dOps[prop])
+  //       if (dOps[prop] === null) {
+  //         return prop
+  //       }
+  //     }
+  //   }
+  // }
+  const firstEmptyOperIndex = (dOps) => {
+    return Object.keys(dOps).find((key) => dOps[key] !== null);
+  }
+  const someResult = firstEmptyOperIndex(dataOperations);
+  console.log(someResult)
+
+  while(Object.keys(dataOperations)-- && !dataOperations[someResult]) {
+
   }
 }
 

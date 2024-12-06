@@ -66,13 +66,20 @@ export class Task {
         this.client = client;
         this.name = name;
         this.created = Date.now();
-        this.operations = ops.map(opID => ({ 
-            [opID]: [{start: null, stop: null}]}
-        ));
+        this.setOperations(ops);
     }
 
     getOperations() {
         return this.operations;
+    }
+
+    setOperations( ops){
+        const theObj = {};
+
+        ops.forEach(op => {
+            theObj[op] = null;
+        });
+        this.operations = theObj;
     }
 
     // getOperationsAsObject(ops) {
@@ -98,6 +105,16 @@ export class Task {
         console.log('Print from Task/convertToFirestore()',forRecord);
         return forRecord
     };
+}
+
+const templateTask = {
+    number: "J.24.021-02",
+    name: "Conveying trough 2 pcs",
+    finished: false,
+    client: "EL SABOR",
+    created: 1733419608,
+    cOp: 1,
+    operations: 
 }
 
 export class Record {
@@ -127,5 +144,15 @@ export class Record {
             created: this.created,
             finished: this.finished
         };
+    }
+}
+
+class operationInterval {
+    start = null;
+    stop = null;
+
+    constructor(start, stop) {
+        this.start = start;
+        this.stop = stop;
     }
 }

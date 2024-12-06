@@ -1,0 +1,13 @@
+{
+    "_id": "J.24.021-02",
+    "name": "Conveying trough 2 pcs",
+    "client": "EL SABOR",
+    "finished": false,
+    "createdAt": 1733419608,
+    "availableOperations": 
+    {
+        "1": {"1": {"start": "2021-12-02T00:00:00.000Z", "stop": "2021-12-02T00:00:00.000Z"}, "2": {"start": "2021-12-02T00:00:00.000Z"}},
+        "2": null,
+        "3": null
+    }
+}
