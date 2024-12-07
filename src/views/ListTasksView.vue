@@ -107,7 +107,7 @@ onMounted(async () => {
         v-for="task in operationTasks"
         :key="task.id"
         :task="task"
-        @toggle-working="toggleWorking(task.id)"
+        @toggle-work="toggleWorking(task.id)"
         @finish-task="toggleFinished(task.id)"
       />
     </div>

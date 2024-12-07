@@ -3,6 +3,7 @@ import { ref, computed, inject, onMounted} from "vue";
 import { RouterLink } from "vue-router";
 
 const ops = ref([]);
+const emitEvents = defineEmits(["toggle-work", "pause-work", "finnish-task"]);
 const props = defineProps({
   task: {
     type: Object,
@@ -10,19 +11,29 @@ const props = defineProps({
   },
 });
 
+() => {
+  if (!props.task.started) {
+    console.log("task is not started");
+  }
+};
+
+
 const task = ref(props.task);
 
-const emitEvents = defineEmits(["toggle-work", "finish-task"]);
-
-const ToggleEvent = () => {
+const handleStartClick = () => {
+  if ( task.value.started ) {
+    emitEvents('toggle-working', props.task.id);
+  } else  {
+    emitEvents('pause-work', props.task.id);
+  }
   task.value.started= !task.value.started;
-  emitEvents('toggle-working', props.task.id);
+  
 }
 
 const passTask = () => {
   console.log("passing task", props.task.id);
   const updatedTask = { ...task, finished: true };
-  emitEvents('finish-task', props.task.id);
+  emitEvents('pause-work', props.task.id);
 };
 
 
@@ -43,7 +54,7 @@ onMounted(async () => {
       <button
         class="button column mx-4 mb-3 px-6 is-size-6-mobile"
         :class="!task.started ? 'is-success' : 'is-warning'"
-        @click.prevent="ToggleEvent(task)"
+        @click.prevent="handleStartClick(task)"
       >
         {{ `${task.started ? " Pause " : " Start "}` }}
         <i class="pi" :class="task.started ? `pi-pause` : `pi-play`"></i>

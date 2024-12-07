@@ -5,7 +5,6 @@
   },
   "hosting": {
     "public": "dist",
-    "source": ".",
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -20,5 +19,20 @@
     "frameworksBackend": {
       "region": "europe-west1"
     }
+  },
+  "emulators": {
+
+    "firestore": {
+      "port": 5714,
+      "host": "localhost"
+    },
+    "hosting": {
+      "port": 5713,
+      "host": "localhost"
+    },
+    "ui": {
+      "enabled": true
+    }
   }
+
 }

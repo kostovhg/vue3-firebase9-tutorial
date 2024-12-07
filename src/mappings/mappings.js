@@ -114,7 +114,7 @@ const templateTask = {
     client: "EL SABOR",
     created: 1733419608,
     cOp: 1,
-    operations: 
+    operations: {}
 }
 
 export class Record {
@@ -130,7 +130,7 @@ export class Record {
     }
 
     finishOperation(opID) {
-        this.operations.find(op => {op.id === opID && op.started}).finished = Date.now();
+        this.operations.find(op => op.id === opID && op.started).finished = Date.now();
     }
 
     finish() {

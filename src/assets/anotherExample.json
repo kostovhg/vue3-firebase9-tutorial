@@ -4,10 +4,13 @@
     "client": "EL SABOR",
     "finished": false,
     "createdAt": 1733419608,
-    "availableOperations": 
-    {
-        "1": {"1": {"start": "2021-12-02T00:00:00.000Z", "stop": "2021-12-02T00:00:00.000Z"}, "2": {"start": "2021-12-02T00:00:00.000Z"}},
+    "availableOperations": {
+        "1": {
+            "2021-12-02T00:00:00.000Z": "2021-12-02T00:00:00.000Z",
+            "2021-12-02T00:00:00.000Z": "null"
+        },
         "2": null,
-        "3": null
+        "3": null,
+        "6": null
     }
 }

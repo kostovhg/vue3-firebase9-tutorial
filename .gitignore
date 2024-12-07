@@ -33,3 +33,4 @@ src\firebase\firebase.config.js
 index-*.js
 index-*.css
 *.yml
+*.firebase.config.js

@@ -13,9 +13,8 @@ const toast = useToast();
 
 const operationsList = ref([]);
 const ops = ref([]);
-
-
-const dummyTask = reactive({
+  
+const taskModel = reactive({
   number: "",
   name: "",
   client: "",
@@ -28,12 +27,12 @@ const state = reactive({
 });
 
 const addNewTask = async () => {
-  console.log(dummyTask);
+  console.log(taskModel);
   const newTaskModel = new Task(
-    dummyTask.number,
-    dummyTask.name,
-    dummyTask.client,
-    dummyTask.operations.sort((a, b) => a - b)
+    taskModel.number,
+    taskModel.name,
+    taskModel.client,
+    taskModel.operations.sort((a, b) => a - b)
   );
   console.log(newTaskModel);
   try {
@@ -48,15 +47,15 @@ const addNewTask = async () => {
 
 const checkInput = () => {
   if (
-    dummyTask.number &&
-    dummyTask.name &&
-    dummyTask.client &&
-    dummyTask.operations.length > 0
+    taskModel.number &&
+    taskModel.name &&
+    taskModel.client &&
+    taskModel.operations.length > 0
   ) {
-    dummyTask.isValid = true;
+    taskModel.isValid = true;
   } else {
-    dummyTask.isValid = false;
-    console.log("Selected operations in checkInput:", dummyTask.operations.length);
+    taskModel.isValid = false;
+    console.log("Selected operations in checkInput:", taskModel.operations.length);
   }
 };
 
@@ -64,15 +63,15 @@ const handleCheckboxChange = (item) => {
   // console.log("the item is: ", item);
   if (item.isChecked) {
     // console.log("item is checked we will push it to selectedOperations");
-    dummyTask.operations.push(item.id);
+    taskModel.operations.push(item.id);
   } else {
-    const index = dummyTask.operations.indexOf(item.id);
+    const index = taskModel.operations.indexOf(item.id);
     // console.log("item was checked but now we remove it from selectedOperations");
     if (index !== -1) {
-      dummyTask.operations.splice(index, 1);
+      taskModel.operations.splice(index, 1);
     }
   }
-  console.log("Print from handleCheckboxChange", dummyTask.operations);
+  console.log("Print from handleCheckboxChange", taskModel.operations);
 };
 
 const toggleItemCheckbox = (item) => {
@@ -99,12 +98,12 @@ onMounted(async () => {
   }
 
   if (operationsList.value.length > 0) {
-    dummyTask.operations.forEach((op) => {
+    taskModel.operations.forEach((op) => {
       operationsList.value.find((item) => item.id === op).isChecked = true;
     });
     state.isLoading = false;
   } else {
-    console.log("there is no operations", dummyTask.operations);
+    console.log("there is no operations", taskModel.operations);
   }
 });
 </script>
@@ -117,7 +116,7 @@ onMounted(async () => {
       <div class="field is-grouped is grouped mb-5">
         <p class="control is-expanded">
           <input
-            v-model.lazy="dummyTask.name"
+            v-model.lazy="taskModel.name"
             class="input"
             type="text"
             id="name"
@@ -130,7 +129,7 @@ onMounted(async () => {
       <div class="field is-grouped is grouped mb-5">
         <p class="control is-expanded">
           <input
-            v-model.lazy="dummyTask.number"
+            v-model.lazy="taskModel.number"
             class="input"
             type="text"
             id="number"
@@ -141,7 +140,7 @@ onMounted(async () => {
         </p>
         <p class="control is-expanded">
           <input
-            v-model.lazy="dummyTask.client"
+            v-model.lazy="taskModel.client"
             class="input"
             type="text"
             id="client"
@@ -162,7 +161,7 @@ onMounted(async () => {
         ref="item"
         class="card column is-half mb-5"
         :class="{
-          'ash-background-success-light': dummyTask.operations.includes(item.id),
+          'ash-background-success-light': taskModel.operations.includes(item.id),
         }"
         @click.prevent="toggleItemCheckbox(item)"
       >
@@ -194,7 +193,7 @@ onMounted(async () => {
       <p class="control">
         <button
           type="submit"
-          :disabled="!dummyTask.isValid"
+          :disabled="!taskModel.isValid"
           class="button is-info"
           @click="addNewTask"
         >

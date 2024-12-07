@@ -11,6 +11,7 @@ import { taskConverter, Task, } from '@/mappings/mappings';
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
 const tasksCollectionRef = collection(db, "tasks");
 const operationCollectionRef = collection(db, "operations")
 const todosCollectionQuery = query(tasksCollectionRef, orderBy("date", "desc"), limit(10));
@@ -178,10 +179,28 @@ async function startWorking(id, oId) {
 
   /* Another testing code*/
   const docRef = doc(db, 'tasks', `${id}`);
+  const collectionOpRef = collection(db, 'tasks', `${id}`, 'operations');
   const docSnap = await getDoc(docRef);
   const data = docSnap.data();
-  const dataOperations = data.operations; // return object {1: .., 2: ..}
-  console.log('print from index.js/startWorking operations', dataOperations)
+  console.log('print from index.js/startWorking data', data)
+  const collectionOpSnap = await getDocs(collectionOpRef);
+  collectionOpSnap.forEach((doc) => {
+    console.log(doc.id, " => ", doc.data());
+    const recs = Object.keys(doc.data());
+    if (recs.length > 0) {
+      console.log('  Records for that operation: ', recs.length)
+      const lastStart = recs[recs.length - 1];
+      console.log('  Last start: ', lastStart)
+      if (doc.data()[lastStart] === null) {
+        console.log('   Operation is currently being worked on');
+      } else {
+        console.log('   Operation is finished');
+      }
+    } else {
+      console.log(`  No records for that operation - > Operation ${doc.id}has not been started`)
+    }
+
+  })
   // const firstEmptyOperIndex = (dOps) => {
   //   for (let prop in dOps) {
   //     console.log('print before hasOwnProperty', prop)
@@ -193,15 +212,15 @@ async function startWorking(id, oId) {
   //     }
   //   }
   // }
-  const firstEmptyOperIndex = (dOps) => {
-    return Object.keys(dOps).find((key) => dOps[key] !== null);
-  }
-  const someResult = firstEmptyOperIndex(dataOperations);
-  console.log(someResult)
+  // const firstEmptyOperIndex = (dOps) => {
+  //   return Object.keys(dOps).find((key) => dOps[key] !== null);
+  // }
+  // const someResult = firstEmptyOperIndex(dataOperations);
+  // console.log(someResult)
 
-  while(Object.keys(dataOperations)-- && !dataOperations[someResult]) {
+  // while(Object.keys(dataOperations)-- && !dataOperations[someResult]) {
 
-  }
+  // }
 }
 
 async function pauseWorking(id, oId) {

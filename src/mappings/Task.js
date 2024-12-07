@@ -1,5 +1,3 @@
-import OperationsRecord from "./OperationsRecord";
-
 export default class Task {
     constructor(number, name, client, ops) {
         this.number = number;
@@ -7,7 +5,6 @@ export default class Task {
         this.client = client;
         this.name = name;
         this.created = Date.now();
-
         this.setOperations(ops);
     }
 
@@ -18,12 +15,10 @@ export default class Task {
      * @param {array} ops - array of operations IDs
      */
     setOperations(ops) {
-        const theObj = {};
-
-        ops.forEach(op => {
-            theObj[op] = null;
-        });
-        this.operations = theObj;
+        return ops.reduce((acc, op) => {
+            acc[op] = null;
+            this.operations = acc;
+        }, {});
     }
 
     /**
