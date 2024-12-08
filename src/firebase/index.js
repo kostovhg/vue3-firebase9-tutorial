@@ -199,7 +199,7 @@ async function startWorking(id, oId) {
     } else {
       console.log(`  No records for that operation - > Operation ${doc.id}has not been started`)
     }
-
+    
   })
   // const firstEmptyOperIndex = (dOps) => {
   //   for (let prop in dOps) {

@@ -12,7 +12,7 @@ const route = useRoute();
 const operationId = ref();
 const toast = useToast;
 const opName = ref("");
-const operationTasks = ref([]);
+const operationTasks = reactive([]);
 const ops = ref([]);
 
 const state = reactive({
@@ -22,14 +22,14 @@ const state = reactive({
 const toggleWorking = (tid) => {
   console.log("succesfully receive emit from child", tid);
   startWorking(tid, operationId.value);
-  alert("switched");
+  console.log("toggleWorking has been clicked. StartWorking has benn called and now we exit");
 };
 
 const toggleFinished = (tid) => {
   const processedTask = operationTasks.value.find((item) => item.id === tid);
   if (confirm(`Are you sure that task ${processedTask.number} is finished?`)) {
     // mimic database update
-    alert("finished");
+    console.log('toggleFinished has been clicked.')
   } else {
     processedTask.finished = false;
   }
@@ -45,9 +45,31 @@ const toggleFinished = (tid) => {
   */
 };
 
-const isStarted = (taskId) => {
-  // mocking database return
-  return false;
+const isStarted = (tasksOperations, currentOperationID) => {
+  // console.log('tasksOperations', tasksOperations)
+  try {
+    const intervals = tasksOperations[currentOperationID];
+    // console.log('Task  operation intervals > ',intervals)
+    if (intervals) {
+      
+      console.log('intervals', intervals)
+      
+      if (intervals[Object.keys(intervals)] === null) {
+        console.log('intervals[Object.keys(intervals)]', intervals[Object.keys(intervals)])
+        console.log('task is started')
+        return true;
+      } else {
+        return false;
+      };
+
+    } else {
+      return false;
+    }
+  } catch (e) {
+    console.log('Operations are not properly recorded')
+    return false
+  }
+
 };
 
 onMounted(async () => {
@@ -64,18 +86,19 @@ onMounted(async () => {
   try {
     const response = await getTasks(operationId);
     // Debug print:
-    console.log(response);
+    console.log("Responce from ListTasksView.vue/onMounted/try: ", response);
     response.forEach((t) => {
-      operationTasks.value.push({
+      operationTasks.push({
         id: t.id,
-        started: isStarted(t.id),
         cOp: t.cOp,
         name: t.name,
         number: t.number,
         client: t.client,
         finished: t.finished,
-        started: isStarted(t.id),
+        operations: t.operations,
+        started: isStarted(t.operations, t.cOp),
       });
+      console.log("operationTasks.value", operationTasks.value);
     });
     operationTasks.value = response;
   } catch (e) {
@@ -84,6 +107,8 @@ onMounted(async () => {
     state.isLoading = false;
     // console.log("Finally task async finished");
   }
+
+  console.log("operationTasks.value", operationTasks.value);
 });
 </script>
 
@@ -107,8 +132,9 @@ onMounted(async () => {
         v-for="task in operationTasks"
         :key="task.id"
         :task="task"
-        @toggle-work="toggleWorking(task.id)"
+        @start-work="toggleWorking(task.id)"
         @finish-task="toggleFinished(task.id)"
+        @pause-work="toggleWorking(task.id)"
       />
     </div>
   </section>

@@ -3,7 +3,7 @@ import { ref, computed, inject, onMounted} from "vue";
 import { RouterLink } from "vue-router";
 
 const ops = ref([]);
-const emitEvents = defineEmits(["toggle-work", "pause-work", "finnish-task"]);
+const emitEvents = defineEmits(["start-work", "pause-work", "finnish-task"]);
 const props = defineProps({
   task: {
     type: Object,
@@ -11,24 +11,12 @@ const props = defineProps({
   },
 });
 
-() => {
-  if (!props.task.started) {
-    console.log("task is not started");
-  }
-};
-
-
 const task = ref(props.task);
 
 const handleStartClick = () => {
-  if ( task.value.started ) {
-    emitEvents('toggle-working', props.task.id);
-  } else  {
-    emitEvents('pause-work', props.task.id);
-  }
-  task.value.started= !task.value.started;
-  
-}
+  emitEvents(task.value.started ? 'pause-work' : 'start-work', props.task.id);
+};
+
 
 const passTask = () => {
   console.log("passing task", props.task.id);
@@ -39,6 +27,7 @@ const passTask = () => {
 
 onMounted(async () => {
   ops.value = await inject("operationsData");
+  console.log('print from TasckCard ', task.value)
 });
 </script>
 
