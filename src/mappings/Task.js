@@ -105,6 +105,7 @@ export default class Task {
             finished: this.finished,
             client: this.client,
             createdAt: this.createdAt,
+            projectNumber: this.projectNumber,
             cOp: this.cOp,
             operations: this.operations
         }
