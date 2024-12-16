@@ -1,100 +1,53 @@
 {
-    "finished": false,
-    "client": "EL SABOR",
-    "createdAt": {
-        "seconds": 1733419608,
-        "nanoseconds": 197000000
-    },
-    "number": "J.24.021-02",
-    "name": "Conveying trough 2 pcs",
-    "operations": [
-        {
-            "1": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "2": [
-                {
-                    "start": someValue,
-                    "stop": someOtherValue
-                },{
-                    "start": thirdValue,
-                    "stop": null
-                }
-            ]
-        },
-        {
-            "3": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "4": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "5": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "10": [
-                {
+    "J.24.021-02": {
+        "name": "Conveying trough 2 pcs",
+        "client": "EL SABOR",
+        "status": "notStarted",
+        "operations": {
+            "1": {
+                "status": "notStarted",
+                "timestamps": {
                     "start": null,
-                    "stop": null
+                    "pause": [],
+                    "finish": null
                 }
-            ]
-        },
-        {
-            "11": [
-                {
-                    "stop": null,
-                    "start": null
+            },
+            "2": {
+                "status": "notStarted",
+                "timestamps": {
+                    "start": null,
+                    "pause": [],
+                    "finish": null
                 }
-            ]
-        },
-        {
-            "13": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "14": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
-        },
-        {
-            "15": [
-                {
-                    "stop": null,
-                    "start": null
-                }
-            ]
+            }
         }
-    ],
-    "projectNumber": "J.24.021",
-    "cOp": "1"
+    },
+    "J.24.031-1.2": {
+        "name": "Удължаване елеватор",
+        "status": "started",
+        "client": "Sirio-Kuminiano",
+        "operations": {
+            "1": {
+                "status": "finished",
+                "timestamps": {
+                    "start": 1697459200,
+                    "pause": [
+                        1697460000,
+                        1697461000
+                    ],
+                    "finish": 1697462000
+                }
+            },
+            "2": {
+                "status": "started",
+                "timestamps": {
+                    "start": 1697465000,
+                    "pause": [],
+                    "finish": null
+                }
+            }
+        }
+    }
 }
 
-// operations[oId][intervalIndex].stop = serverTimestamp();
-// operations.find(obj => {obj[oId] == }
+  

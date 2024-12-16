@@ -76,13 +76,13 @@ async function getTasks(opId) {
 
 async function fetchOperations() {
   console.log("fetching operations");
-  const docsSnap = await getDocs(operationCollectionRef);
+  const docsSnap = await getDocs(collection(db, 'operations'))
   if (docsSnap.empty) {
-    // console.log("No operations found");
+    console.log("No operations found");
     return []
   } else {
     const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
+    console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
     return operations
   }
 }
@@ -99,12 +99,11 @@ async function addTodo(data) {
 }
 
 async function addTask(task) {
-
-  console.log("converted to plant object: ", task.convertToFirestore());
-
-  const toRecord = task.convertToFirestore();
+  
+  
+  const toRecord = task.toFirestore();
   toRecord.createdAt = serverTimestamp();
-
+  console.log("converted to plant object: ", toRecord);
   try {
     const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
   } catch (e) {
@@ -199,7 +198,7 @@ async function startWorking(id, oId) {
     } else {
       console.log(`  No records for that operation - > Operation ${doc.id}has not been started`)
     }
-    
+
   })
   // const firstEmptyOperIndex = (dOps) => {
   //   for (let prop in dOps) {
@@ -268,5 +267,6 @@ export {
   fetchOperations,
   startWorking,
   pauseWorking,
-  finishWorking
+  finishWorking,
+  serverTimestamp
 }

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, inject, onMounted} from "vue";
+import { ref, computed, inject, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 
 const ops = ref([]);
@@ -14,20 +14,19 @@ const props = defineProps({
 const task = ref(props.task);
 
 const handleStartClick = () => {
-  emitEvents(task.value.started ? 'pause-work' : 'start-work', props.task.id);
+  emitEvents(task.value.started ? "pause-work" : "start-work", props.task.id);
+  task.value.started = !task.value.started;
 };
-
 
 const passTask = () => {
   console.log("passing task", props.task.id);
   const updatedTask = { ...task, finished: true };
-  emitEvents('pause-work', props.task.id);
+  emitEvents("pause-work", props.task.id);
 };
-
 
 onMounted(async () => {
   ops.value = await inject("operationsData");
-  console.log('print from TasckCard ', task.value)
+  console.log("print from TasckCard ", task.value);
 });
 </script>
 
@@ -41,7 +40,7 @@ onMounted(async () => {
       </div>
 
       <button
-        class="button column mx-4 mb-3 px-6 is-size-6-mobile"
+        class="button column mx-4 px-6 is-size-6-mobile"
         :class="!task.started ? 'is-success' : 'is-warning'"
         @click.prevent="handleStartClick(task)"
       >
@@ -60,12 +59,10 @@ onMounted(async () => {
     </div>
     <div class="card-content">
       <div class="container columns is-multiline">
-
         <p class="subtitle column">{{ task.client }}</p>
 
         <p class="subtitle column">{{ task.name }}</p>
       </div>
-
     </div>
   </div>
 </template>

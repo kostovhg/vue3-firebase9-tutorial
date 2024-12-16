@@ -22,14 +22,16 @@ const state = reactive({
 const toggleWorking = (tid) => {
   console.log("succesfully receive emit from child", tid);
   startWorking(tid, operationId.value);
-  console.log("toggleWorking has been clicked. StartWorking has benn called and now we exit");
+  console.log(
+    "toggleWorking has been clicked. StartWorking has benn called and now we exit"
+  );
 };
 
 const toggleFinished = (tid) => {
   const processedTask = operationTasks.value.find((item) => item.id === tid);
   if (confirm(`Are you sure that task ${processedTask.number} is finished?`)) {
     // mimic database update
-    console.log('toggleFinished has been clicked.')
+    console.log("toggleFinished has been clicked.");
   } else {
     processedTask.finished = false;
   }
@@ -51,30 +53,32 @@ const isStarted = (tasksOperations, currentOperationID) => {
     const intervals = tasksOperations[currentOperationID];
     // console.log('Task  operation intervals > ',intervals)
     if (intervals) {
-      
-      console.log('intervals', intervals)
-      
+      console.log("intervals", intervals);
+
       if (intervals[Object.keys(intervals)] === null) {
-        console.log('intervals[Object.keys(intervals)]', intervals[Object.keys(intervals)])
-        console.log('task is started')
+        console.log(
+          "intervals[Object.keys(intervals)]",
+          intervals[Object.keys(intervals)]
+        );
+        console.log("task is started");
         return true;
       } else {
         return false;
-      };
-
+      }
     } else {
       return false;
     }
   } catch (e) {
-    console.log('Operations are not properly recorded')
-    return false
+    console.log("Operations are not properly recorded");
+    return false;
   }
-
 };
 
 onMounted(async () => {
   ops.value = await inject("operationsData");
   operationId.value = route.params.oId;
+
+  console.log("print from ListTaskView/onMounted > ops.value", ops.value);
 
   const foundedOp = ops.value.find((item) => item.id === operationId.value);
   if (foundedOp) {

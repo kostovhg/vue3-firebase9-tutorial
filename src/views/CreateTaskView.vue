@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, onUnmounted, reactive, inject } from "vue";
 import { useRouter } from "vue-router";
-import { Task } from "@/mappings/mappings";
+import Task from "@/mappings/Task";
 import { addTask } from "@/firebase";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
@@ -13,9 +13,9 @@ const toast = useToast();
 
 const operationsList = ref([]);
 const ops = ref([]);
-  
+
 const taskModel = reactive({
-  number: "",
+  number: "J.24.0",
   name: "",
   client: "",
   operations: ["1", "2", "11", "15"],
@@ -28,12 +28,8 @@ const state = reactive({
 
 const addNewTask = async () => {
   console.log(taskModel);
-  const newTaskModel = new Task(
-    taskModel.number,
-    taskModel.name,
-    taskModel.client,
-    taskModel.operations.sort((a, b) => a - b)
-  );
+
+  const newTaskModel = new Task(taskModel);
   console.log(newTaskModel);
   try {
     await addTask(newTaskModel);
