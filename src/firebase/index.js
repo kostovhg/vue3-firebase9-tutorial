@@ -56,11 +56,11 @@ async function getTodos(callback) {
 
 async function getTasks(opId) {
 
-  console.log(typeof (opId.value), opId.value)
+  // console.log(typeof (opId.value), opId.value)
   const q = query(tasksCollectionRef,
     where("cOp", "==", opId.value));
 
-  console.log('Log from passing query in getTasks - q', q)
+  // console.log('Log from passing query in getTasks - q', q)
   try {
     const docsSnap = await getDocs(q);
     const tasks = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -75,14 +75,14 @@ async function getTasks(opId) {
 
 
 async function fetchOperations() {
-  console.log("fetching operations");
+  // console.log("fetching operations");
   const docsSnap = await getDocs(collection(db, 'operations'))
   if (docsSnap.empty) {
     console.log("No operations found");
     return []
   } else {
     const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
+    // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
     return operations
   }
 }
@@ -90,7 +90,7 @@ async function fetchOperations() {
 async function addTodo(data) {
   try {
     const docRef = await addDoc(tasksCollectionRef, data);
-    console.log("Document written with ID: ", docRef.id);
+    // console.log("Document written with ID: ", docRef.id);
     return docRef.id;
   } catch (e) {
     console.error("Error adding document: ", e);
@@ -99,11 +99,11 @@ async function addTodo(data) {
 }
 
 async function addTask(task) {
-  
-  
+
+
   const toRecord = task.toFirestore();
   toRecord.createdAt = serverTimestamp();
-  console.log("converted to plant object: ", toRecord);
+  // console.log("converted to plant object: ", toRecord);
   try {
     const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
   } catch (e) {
@@ -116,7 +116,7 @@ async function getDocRef(id) {
   return doc(db, 'tasks', `${id}`);
 }
 
-async function startWorking(id, oId) {
+async function startWorking(t, oId) {
   /* Old code - needs fixes and optimization */
   // try {
   //   var docRef = doc(db, 'tasks', `${id}`);
@@ -177,29 +177,29 @@ async function startWorking(id, oId) {
   // }
 
   /* Another testing code*/
-  const docRef = doc(db, 'tasks', `${id}`);
-  const collectionOpRef = collection(db, 'tasks', `${id}`, 'operations');
-  const docSnap = await getDoc(docRef);
-  const data = docSnap.data();
-  console.log('print from index.js/startWorking data', data)
-  const collectionOpSnap = await getDocs(collectionOpRef);
-  collectionOpSnap.forEach((doc) => {
-    console.log(doc.id, " => ", doc.data());
-    const recs = Object.keys(doc.data());
-    if (recs.length > 0) {
-      console.log('  Records for that operation: ', recs.length)
-      const lastStart = recs[recs.length - 1];
-      console.log('  Last start: ', lastStart)
-      if (doc.data()[lastStart] === null) {
-        console.log('   Operation is currently being worked on');
-      } else {
-        console.log('   Operation is finished');
-      }
-    } else {
-      console.log(`  No records for that operation - > Operation ${doc.id}has not been started`)
-    }
+  // const docRef = doc(db, 'tasks', `${id}`);
+  // const collectionOpRef = collection(db, 'tasks', `${id}`, 'operations');
+  // const docSnap = await getDoc(docRef);
+  // const data = docSnap.data();
+  // console.log('print from index.js/startWorking data', data)
+  // const collectionOpSnap = await getDocs(collectionOpRef);
+  // collectionOpSnap.forEach((doc) => {
+  //   console.log(doc.id, " => ", doc.data());
+  //   const recs = Object.keys(doc.data());
+  //   if (recs.length > 0) {
+  //     console.log('  Records for that operation: ', recs.length)
+  //     const lastStart = recs[recs.length - 1];
+  //     console.log('  Last start: ', lastStart)
+  //     if (doc.data()[lastStart] === null) {
+  //       console.log('   Operation is currently being worked on');
+  //     } else {
+  //       console.log('   Operation is finished');
+  //     }
+  //   } else {
+  //     console.log(`  No records for that operation - > Operation ${doc.id}has not been started`)
+  //   }
 
-  })
+  // })
   // const firstEmptyOperIndex = (dOps) => {
   //   for (let prop in dOps) {
   //     console.log('print before hasOwnProperty', prop)
@@ -220,21 +220,57 @@ async function startWorking(id, oId) {
   // while(Object.keys(dataOperations)-- && !dataOperations[someResult]) {
 
   // }
+
+  const docRef = doc(db, 'tasks', `${t.number}`);
+
+  const resp = await updateDoc(docRef,
+    {
+      started: true,
+      operations: t.operations,
+      modifiedAt: serverTimestamp()
+    }
+  ).then(() => {
+    // console.log("Document successfully updated!");
+  }).catch((error) => {
+    console.error("Error updating document: ", error);
+  })
+
 }
 
-async function pauseWorking(id, oId) {
-  // todo: implement pauseWorking
+async function pauseWorking(t, oId) {
+
+  const docRef = doc(db, 'tasks', `${t.number}`);
+  const resp = await updateDoc(docRef,
+    {
+      [`operations.${oId}.timestamps.pause`]: t.operations[oId].timestamps.pause,
+      modifiedAt: serverTimestamp()
+    }
+  ).then(() => {
+    console.log('Document successfully updated!');
+  }).catch((error) => {
+    console.error('Error updating document: ', error);
+  })
 }
 
-async function finishWorking(id, oId) {
-  // todo: implement finishWorking
+async function finishWorking(t, oId) {
+  const docRef = doc(db, 'tasks', `${t.number}`);
+  const resp = await updateDoc(docRef,
+    {
+      [`operations.${oId}.timestamps.finish`]: serverTimestamp(),
+      modifiedAt: serverTimestamp(),
+      cOp: t.cOp
+    }).then(() => {
+      // console.log('Document successfully updated!');
+    }).catch((error) => {
+      console.error('Error updating document: ', error);
+    })
 }
 
 async function delTodo(id) {
   try {
     const docRef = doc(tasksCollectionRef, id);
     await deleteDoc(docRef);
-    console.log("Document deleted with ID: ", id);
+    // console.log("Document deleted with ID: ", id);
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;
@@ -245,7 +281,7 @@ async function updateTodo(id, data) {
   try {
     const docRef = doc(tasksCollectionRef, id);
     await updateDoc(docRef, data);
-    console.log("Document updated with ID: ", id);
+    // console.log("Document updated with ID: ", id);
   } catch (e) {
     console.error("Error adding document: ", e);
     throw e;

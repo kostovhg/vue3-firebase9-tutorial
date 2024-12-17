@@ -27,10 +27,10 @@ const state = reactive({
 });
 
 const addNewTask = async () => {
-  console.log(taskModel);
+  // console.log(taskModel);
 
   const newTaskModel = new Task(taskModel);
-  console.log(newTaskModel);
+  // console.log(newTaskModel);
   try {
     await addTask(newTaskModel);
     toast.success("Task added successfully");
@@ -51,7 +51,7 @@ const checkInput = () => {
     taskModel.isValid = true;
   } else {
     taskModel.isValid = false;
-    console.log("Selected operations in checkInput:", taskModel.operations.length);
+    // console.log("Selected operations in checkInput:", taskModel.operations.length);
   }
 };
 
@@ -67,7 +67,7 @@ const handleCheckboxChange = (item) => {
       taskModel.operations.splice(index, 1);
     }
   }
-  console.log("Print from handleCheckboxChange", taskModel.operations);
+  // console.log("Print from handleCheckboxChange", taskModel.operations);
 };
 
 const toggleItemCheckbox = (item) => {

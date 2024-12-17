@@ -3,7 +3,7 @@ import { ref, computed, inject, onMounted } from "vue";
 import { RouterLink } from "vue-router";
 
 const ops = ref([]);
-const emitEvents = defineEmits(["start-work", "pause-work", "finnish-task"]);
+const emitEvents = defineEmits(["start-work", "pause-work", "finish-task"]);
 const props = defineProps({
   task: {
     type: Object,
@@ -14,19 +14,17 @@ const props = defineProps({
 const task = ref(props.task);
 
 const handleStartClick = () => {
-  emitEvents(task.value.started ? "pause-work" : "start-work", props.task.id);
-  task.value.started = !task.value.started;
+  emitEvents(task.value.isStarted ? "pause-work" : "start-work", props.task.number);
+  task.value.isStarted = !task.value.isStarted;
 };
 
 const passTask = () => {
-  console.log("passing task", props.task.id);
-  const updatedTask = { ...task, finished: true };
-  emitEvents("pause-work", props.task.id);
+  emitEvents("finish-task", props.task.number);
 };
 
 onMounted(async () => {
   ops.value = await inject("operationsData");
-  console.log("print from TasckCard ", task.value);
+  // console.log("print from TaskCard/onMounted > ", task.value);
 });
 </script>
 
@@ -41,20 +39,20 @@ onMounted(async () => {
 
       <button
         class="button column mx-4 px-6 is-size-6-mobile"
-        :class="!task.started ? 'is-success' : 'is-warning'"
+        :class="!task.isStarted ? 'is-success' : 'is-warning'"
         @click.prevent="handleStartClick(task)"
       >
-        {{ `${task.started ? " Pause " : " Start "}` }}
-        <i class="pi" :class="task.started ? `pi-pause` : `pi-play`"></i>
+        {{ `${task.isStarted ? " Pause " : " Start "}` }}
+        <i class="pi" :class="task.isStarted ? `pi-pause` : `pi-play`"></i>
       </button>
 
       <button
-        :class="task.started ? 'is-danger' : 'os-cancel disabled'"
+        :class="task.isStarted ? 'is-danger' : 'os-cancel disabled'"
         class="button column mx-4 px-6 is-size-6-mobile"
-        :disabled="task.started ? false : true"
+        :disabled="task.isStarted ? false : true"
         @click.prevent="passTask(task)"
       >
-        {{ `Finish ${task.started ? " ✓ " : " ✗ "}` }}
+        {{ `Finish ${task.isStarted ? " ✓ " : " ✗ "}` }}
       </button>
     </div>
     <div class="card-content">
