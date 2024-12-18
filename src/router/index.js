@@ -3,6 +3,7 @@ import ListOperationsView from '@/views/ListOperationsView.vue';
 import ListTasksView from '@/views/ListTasksView.vue';
 import CreateTaskView from '@/views/CreateTaskView.vue';
 import ListAllTasksView from '@/views/ListAllTasksView.vue';
+import ManageTasksView from '@/views/ManageTasksView.vue';
 
 
 const router = createRouter({
@@ -29,6 +30,11 @@ const router = createRouter({
             name: 'create',
             component: CreateTaskView,
         },
+        {
+            path: '/manage',
+            name: 'manage-tasks',
+            component: ManageTasksView,
+        }
     ]
 });
 

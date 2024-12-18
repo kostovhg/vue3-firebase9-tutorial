@@ -6,7 +6,7 @@ import {
   doc, addDoc, setDoc, deleteDoc, updateDoc,
   query, orderBy, limit, where
 } from "firebase/firestore";
-import { taskConverter, Task, } from '@/mappings/mappings';
+import Task from "@/mappings/Task";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -71,7 +71,21 @@ async function getTasks(opId) {
   }
 }
 
+async function getAllTasks() {
 
+  // console.log(typeof (opId.value), opId.value)
+  // const q = query(tasksCollectionRef)
+
+  // console.log('Log from passing query in getTasks - q', q)
+  try {
+    const docsSnap = await getDocs(taskCollectionRef);
+    const tasks = docsSnap.docs.map(doc => (new Task(doc)));
+    return tasks
+  } catch (e) {
+    console.error("Error fetching tasks document: ", e);
+    return [];
+  }
+}
 
 
 async function fetchOperations() {
@@ -298,6 +312,7 @@ export {
   db,
   addTask,
   getTasks,
+  getAllTasks,
   delTodo,
   updateTodo,
   fetchOperations,
