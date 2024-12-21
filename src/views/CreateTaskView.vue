@@ -80,18 +80,18 @@ const toggleItemCheckbox = (item) => {
 onMounted(async () => {
   ops.value = inject("operationsData");
   // selectedOperations.value = dummyTask.operations;
-  if (ops.value.length === 0) {
-    await fetchOperations()
-      .then((result) => {
-        operationsList.value = result.sort((a, b) => a.id - b.id);
-      })
-      .finally(() => {
-        // state.isLoading = false;
-      });
-  } else {
-    // console.log("ops.value", ops.value);
-    operationsList.value = ops.value.sort((a, b) => a.id - b.id);
-  }
+  // if (ops.value.length === 0) {
+  //   await fetchOperations()
+  //     .then((result) => {
+  //       operationsList.value = result.sort((a, b) => a.id - b.id);
+  //     })
+  //     .finally(() => {
+  //       // state.isLoading = false;
+  //     });
+  // } else {
+  //   // console.log("ops.value", ops.value);
+  //   operationsList.value = ops.value.sort((a, b) => a.id - b.id);
+  // }
 
   if (operationsList.value.length > 0) {
     taskModel.operations.forEach((op) => {

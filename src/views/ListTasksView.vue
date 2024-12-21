@@ -4,73 +4,40 @@ import { ref, onMounted, onUnmounted, inject, reactive } from "vue";
 import Task from "@/mappings/Task";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
-import {
-  getTasks,
-  startWorking,
-  pauseWorking,
-  finishWorking,
-  serverTimestamp,
-} from "@/firebase";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
 import TaskCard from "@/components/TaskCard.vue";
+import TaskSnapshot from "@/mappings/TaskSnapshot";
 
 const route = useRoute();
 const operationId = ref();
-const toast = useToast;
+const toast = useToast();
 const opName = ref("");
 const operationTasks = reactive([]);
 const ops = ref([]);
+const tasks = ref([]);
 
 const state = reactive({
   isLoading: true,
 });
 
 const toggleWorking = (t) => {
-  if (!t.isStarted) {
+  if (!t.data.isStarted) {
     t.startOperation(operationId.value, new Date());
-    startWorking(t, operationId.value);
   } else {
     t.pauseOperation(operationId.value, new Date());
-    pauseWorking(t, operationId.value);
   }
 };
 
 const toggleFinished = (t) => {
   t.finishOperation(operationId.value);
-  // console.log("On listTask vue toggleFinish gives t: ", t);
-  finishWorking(t, operationId.value);
   operationTasks.splice(operationTasks.indexOf(t), 1);
+  toast.success(`Operation ${t.cOp} finished`);
 };
 
-const isStarted = (tasksOperations, currentOperationID) => {
-  // console.log('tasksOperations', tasksOperations)
-  try {
-    const intervals = tasksOperations[currentOperationID];
-    // console.log('Task  operation intervals > ',intervals)
-    if (intervals) {
-      // console.log("intervals", intervals);
+onMounted(() => {
+  tasks.value = inject("tasksData");
+  ops.value = inject("operationsData");
 
-      if (intervals[Object.keys(intervals)] === null) {
-        // console.log(
-        //   "intervals[Object.keys(intervals)]",
-        //   intervals[Object.keys(intervals)]
-        // );
-        // console.log("task is started");
-        return true;
-      } else {
-        return false;
-      }
-    } else {
-      return false;
-    }
-  } catch (e) {
-    console.log("Operations are not properly recorded");
-    return false;
-  }
-};
-
-onMounted(async () => {
-  ops.value = await inject("operationsData");
   operationId.value = route.params.oId;
 
   // console.log("print from ListTaskView/onMounted > ops.value", ops.value);
@@ -83,26 +50,17 @@ onMounted(async () => {
   }
 
   try {
-    const response = await getTasks(operationId);
-    // Debug print:
-    // console.log("Response from ListTasksView.vue/onMounted/try: ", response);
-    response.forEach((t) => {
-      // console.log("operationTasks.value", t);
-      const newTask = new Task(t);
-      const isStarted = newTask.isStarted(operationId.value);
-      newTask.isStarted = isStarted;
-      // console.log("Print from ListTaskView/onMounted/try/newTask.isStarted", newTask);
-      operationTasks.push(newTask);
+    tasks.value.forEach((t) => {
+      if (t.data().cOp === operationId.value) {
+        operationTasks.push(new TaskSnapshot(t));
+      }
     });
-    // operationTasks = response;
+    setTimeout(1000) 
   } catch (e) {
     console.log("Something wrong with getting tasks", e);
   } finally {
     state.isLoading = false;
-    // console.log("Finally task async finished");
   }
-
-  // console.log("operationTasks.value", operationTasks);
 });
 </script>
 
@@ -121,16 +79,18 @@ onMounted(async () => {
     </div>
 
     <!-- Show list of tasks when done loading -->
-    <div v-else class="is-multiline">
+    <div v-else-if="3" class="is-multiline">
       <TaskCard
-        v-for="task in operationTasks"
-        :key="task.number"
+      v-for="task in operationTasks"
+        :key="task.data.number"
         :task="task"
+        :operationId="task.data.cOp"  
         @start-work="toggleWorking(task)"
         @finish-task="toggleFinished(task)"
         @pause-work="toggleWorking(task)"
       />
     </div>
+    <div v-else>No operatioID</div>
   </section>
 </template>
 

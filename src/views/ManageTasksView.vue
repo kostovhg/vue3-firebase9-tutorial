@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import ganttList from "@/mappings"
+
 
 const row1BarList = ref([
   {

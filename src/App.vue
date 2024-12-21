@@ -5,7 +5,8 @@
 import { inject, provide } from "vue";
 import { RouterView } from "vue-router";
 
-const operationsData = inject("operationsData");
+// const operationsData = inject("operationsData");
+// const tasksData = inject("tasksData");
 </script>
 
 <template>

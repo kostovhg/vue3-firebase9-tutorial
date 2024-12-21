@@ -1,4 +1,4 @@
-import { getAllTasks, fetchOperations } from "@/firebase";
+import { getAllTasks, fetchOperations, getTasks } from "@/firebase";
 
 function getIntervals(taskIntervals){
     /*
@@ -21,14 +21,15 @@ function getIntervals(taskIntervals){
 
 }
 
-export const getTasks = async () => {
+export default getTasks = async () => {
     const rowsList = []
-    const operations = await fetchOperations();
+    const operations = inject("operationsData");
+    // const operations = await fetchOperations();
     const tasksList = await getAllTasks();
     for (const task of tasksList) {
         for (const op of operations) {  
             if(rowsList.find(row => row.label !== op.name)) {
-                rowsList.pusn({'label': op.name, 'barsList': []})
+                rowsList.push({'label': op.name, 'barsList': []})
             }
             if (task.operations[op.id].status !== 'notStarted') {
                const getObjIndex = rowsList.findIndex(row => row.label === op.name)

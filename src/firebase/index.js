@@ -78,9 +78,10 @@ async function getAllTasks() {
 
   // console.log('Log from passing query in getTasks - q', q)
   try {
-    const docsSnap = await getDocs(taskCollectionRef);
-    const tasks = docsSnap.docs.map(doc => (new Task(doc)));
-    return tasks
+    const docsSnap = await getDocs(tasksCollectionRef);
+    const documentSnapshots = docsSnap.docs.map((doc) => doc);
+    // const tasks = docsSnap.docs.map(doc => (new Task(doc)));
+    return documentSnapshots
   } catch (e) {
     console.error("Error fetching tasks document: ", e);
     return [];
@@ -98,6 +99,17 @@ async function fetchOperations() {
     const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
     return operations
+  }
+}
+
+async function fetchTasks(){
+  const docsSnap = await getDocs(collection(db, 'tasks'));
+  if (docsSnap.empty) {
+    console.log("No tasks found");
+    return []
+  } else {
+    const tasks = docsSnap.docs.map(doc => ({ id: doc.number, ...doc.data() }));
+    return tasks
   }
 }
 
