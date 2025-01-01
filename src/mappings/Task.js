@@ -54,22 +54,34 @@ export default class Task {
         if (!data.client) throw new Error('Missing client');
         if (!data.name) throw new Error('Missing name');
         if (!data.operations) throw new Error('Missing operations');
-
     }
 
-
+    /**
+     * Should create start property with current time.
+     * If there is already start property with the same opID, it should return error.
+     * It should be possible to add new start property, if the opID is the next
+     * from available opID's
+     *
+     * @param {String} opID
+     * @param {serverTimestamp} time
+     * @memberof Task
+     */
     startOperation(opID, time) {
-        if (!this.operations[opID]) {
-            throw new Error(`Operation with opID ${opID} does not exist`);
+        if (this.operations[opID] && this.operations[opID].start) {
+            throw new Error(`Operation with opID ${opID} already has a start property.`);
         }
-        if (this.operations[opID].timestamps.start) {
-            this.operations[opID].timestamps.pause.push(time);
-        } else {
-            this.operations[opID].timestamps.start = time;
-            this.operations[opID].status = 'started';
-        }
-    }
 
+        // Check if opID is the next from available opIDs
+        const opIDs = Object.keys(this.operations).map(id => parseInt(id, 10)).sort((a, b) => a - b);
+        const nextOpID = opIDs.length > 0 ? Math.max(...opIDs) + 1 : 1;
+
+        if (parseInt(opID, 10) !== nextOpID) {
+            throw new Error(`Operation with opID ${opID} is not the next available opID. Expected ${nextOpID}.`);
+        }
+
+        // Add the start property with the current time
+        this.operations[opID] = { start: time };
+    }
     /**
      * It should pause the operation trough creating finish property with current time
      * 
@@ -78,35 +90,11 @@ export default class Task {
      * @returns {void}
      */
     pauseOperation(opID, time) {
-        // console.log(time)
-        this.operations[opID].timestamps.pause.push(time);
+        this.operations.find(op => { op.id === opID }).paused = Date.now();
     }
 
     finishOperation(opID) {
-        // todo: check if there is a start before adding finnish
-        const opIndex = Object.keys(this.operations).indexOf(opID);
-        const ops = Object.keys(this.operations);
-        this.operations[opID].timestamps.finish = Date.now();
-        if (ops.length > opIndex + 1) {
-            this.cOp = ops[opIndex + 1];
-            // console.log(this.cOp)
-            this.operations[opID].status = 'finished'
-        } else {
-            this.finished = true;
-        }
-    }
-
-    isStarted(opID) {
-        return this.operations[opID].timestamps.start !== null;
-    }
-
-    isFinished(opID) {
-        return this.operations[opID].timestamps.finish !== null;
-    }
-
-    isPaused(opID) {
-        const pauses = this.operations[opID].timestamps.pause;
-        return pauses !== null && pauses.length % 2 !== 0;
+        this.operations.find(op => { op.id === opID }).finished = Date.now();
     }
 
     toFirestore() {

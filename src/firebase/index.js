@@ -71,36 +71,36 @@ async function getTasks(opId) {
   }
 }
 
-async function getAllTasks() {
+// async function getAllTasks() {
 
-  // console.log(typeof (opId.value), opId.value)
-  // const q = query(tasksCollectionRef)
+//   // console.log(typeof (opId.value), opId.value)
+//   // const q = query(tasksCollectionRef)
 
-  // console.log('Log from passing query in getTasks - q', q)
-  try {
-    const docsSnap = await getDocs(tasksCollectionRef);
-    const documentSnapshots = docsSnap.docs.map((doc) => doc);
-    // const tasks = docsSnap.docs.map(doc => (new Task(doc)));
-    return documentSnapshots
-  } catch (e) {
-    console.error("Error fetching tasks document: ", e);
-    return [];
-  }
-}
+//   // console.log('Log from passing query in getTasks - q', q)
+//   try {
+//     const docsSnap = await getDocs(tasksCollectionRef);
+//     const documentSnapshots = docsSnap.docs.map((doc) => doc);
+//     // const tasks = docsSnap.docs.map(doc => (new Task(doc)));
+//     return documentSnapshots
+//   } catch (e) {
+//     console.error("Error fetching tasks document: ", e);
+//     return [];
+//   }
+// }
 
 
-async function fetchOperations() {
-  // console.log("fetching operations");
-  const docsSnap = await getDocs(collection(db, 'operations'))
-  if (docsSnap.empty) {
-    console.log("No operations found");
-    return []
-  } else {
-    const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
-    return operations
-  }
-}
+// async function fetchOperations() {
+//   // console.log("fetching operations");
+//   const docsSnap = await getDocs(collection(db, 'operations'))
+//   if (docsSnap.empty) {
+//     console.log("No operations found");
+//     return []
+//   } else {
+//     const operations = docsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+//     // console.log('Printing operations from firebase/index/fetchOperations() - operations', operations)
+//     return operations
+//   }
+// }
 
 async function fetchTasks(){
   const docsSnap = await getDocs(collection(db, 'tasks'));
@@ -124,19 +124,17 @@ async function addTodo(data) {
   }
 }
 
-async function addTask(task) {
-
-
-  const toRecord = task.toFirestore();
-  toRecord.createdAt = serverTimestamp();
-  // console.log("converted to plant object: ", toRecord);
-  try {
-    const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
-  } catch (e) {
-    console.error("Error adding document: ", e);
-    throw e;
-  }
-}
+// async function addTask(task) {
+//   const toRecord = task.toFirestore();
+//   toRecord.createdAt = serverTimestamp();
+//   // console.log("converted to plant object: ", toRecord);
+//   try {
+//     const docRef = await setDoc(doc(db, "tasks", toRecord.number), toRecord);
+//   } catch (e) {
+//     console.error("Error adding document: ", e);
+//     throw e;
+//   }
+// }
 
 async function getDocRef(id) {
   return doc(db, 'tasks', `${id}`);
@@ -322,12 +320,12 @@ const getClientTimestamp = () => {
 
 export {
   db,
-  addTask,
+  // addTask,
   getTasks,
-  getAllTasks,
+  // getAllTasks,
   delTodo,
   updateTodo,
-  fetchOperations,
+  // fetchOperations,
   startWorking,
   pauseWorking,
   finishWorking,

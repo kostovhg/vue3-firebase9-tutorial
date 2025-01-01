@@ -34,3 +34,5 @@ index-*.js
 index-*.css
 *.yml
 *.firebase.config.js
+
+.codegpt

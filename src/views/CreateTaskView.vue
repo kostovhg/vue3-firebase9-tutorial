@@ -2,17 +2,20 @@
 import { onMounted, ref, onUnmounted, reactive, inject } from "vue";
 import { useRouter } from "vue-router";
 import Task from "@/mappings/Task";
-import { addTask } from "@/firebase";
+// import { addTask } from "@/firebase";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
-import { fetchOperations } from "@/firebase";
+import { useOpsStore } from "@/stores/useOpsStore";
+import { useTaskSnapStore } from "@/stores/useTaskSnapStore";
+// import { fetchOperations } from "@/firebase";
 
 const router = useRouter();
 const toast = useToast();
+const taskStore = useTaskSnapStore();
+const opsStore = useOpsStore();
 
-const operationsList = ref([]);
-const ops = ref([]);
+const dummyOperationList = ref([]);
 
 const taskModel = reactive({
   number: "J.24.0",
@@ -31,14 +34,15 @@ const addNewTask = async () => {
 
   const newTaskModel = new Task(taskModel);
   // console.log(newTaskModel);
-  try {
-    await addTask(newTaskModel);
-    toast.success("Task added successfully");
-    router.push("/");
-  } catch (error) {
-    console.error(error);
-    toast.error("Error adding task");
-  }
+  // try {
+  //   await addTask(newTaskModel);
+  //   toast.success("Task added successfully");
+  //   router.push("/");
+  // } catch (error) {
+  //   console.error(error);
+  //   toast.error("Error adding task");
+  // }
+  await taskStore.addTask(newTaskModel);
 };
 
 const checkInput = () => {
@@ -74,33 +78,18 @@ const toggleItemCheckbox = (item) => {
   // event.preventDefault();
   item.isChecked = !item.isChecked;
   handleCheckboxChange(item);
-  // console.log("Log from toggleItemCheckbox: ", item, item.isChecked);
+  console.log("Log from toggleItemCheckbox: ", item, item.isChecked);
 };
 
 onMounted(async () => {
-  ops.value = inject("operationsData");
-  // selectedOperations.value = dummyTask.operations;
-  // if (ops.value.length === 0) {
-  //   await fetchOperations()
-  //     .then((result) => {
-  //       operationsList.value = result.sort((a, b) => a.id - b.id);
-  //     })
-  //     .finally(() => {
-  //       // state.isLoading = false;
-  //     });
-  // } else {
-  //   // console.log("ops.value", ops.value);
-  //   operationsList.value = ops.value.sort((a, b) => a.id - b.id);
-  // }
-
-  if (operationsList.value.length > 0) {
-    taskModel.operations.forEach((op) => {
-      operationsList.value.find((item) => item.id === op).isChecked = true;
+  opsStore.operations.forEach((op) => {
+    dummyOperationList.value.push({
+      id: op.oId,
+      name: op.name,
+      isChecked: taskModel.operations.includes(op.oId),
     });
-    state.isLoading = false;
-  } else {
-    console.log("there is no operations", taskModel.operations);
-  }
+  });
+  state.isLoading = false;
 });
 </script>
 
@@ -152,12 +141,14 @@ onMounted(async () => {
     </div>
     <div v-else class="columns is-multiline">
       <div
-        v-for="item in operationsList"
+        v-for="item in dummyOperationList"
         :key="item.id"
         ref="item"
         class="card column is-half mb-5"
         :class="{
-          'ash-background-success-light': taskModel.operations.includes(item.id),
+          'ash-background-success-light': taskModel.operations.includes(
+            item.id
+          ),
         }"
         @click.prevent="toggleItemCheckbox(item)"
       >

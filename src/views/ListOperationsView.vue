@@ -2,16 +2,17 @@
 import router from "@/router";
 import { ref, inject, onMounted, onUnmounted } from "vue";
 import { RouterView } from "vue-router";
+import { useOpsStore } from "@/stores/useOpsStore";
 
+const opsStore = useOpsStore();
 const operationsList = ref([]);
 
-const simulateLink = (id) => {
-  console.log(id);
+const goToOperation = (id) => {
   router.push(`/tasks/${id}`);
 };
 
 onMounted(() => {
-  operationsList.value = inject("operationsData").sort((a, b) => a.id - b.id);
+  operationsList.value = opsStore.operations;
 });
 </script>
 
@@ -22,13 +23,13 @@ onMounted(() => {
     <div class="columns is-multiline">
       <div
         v-for="item in operationsList"
-        :key="item.id"
+        :key="item.oId"
         ref="item"
         class="card column is-half mb-5"
         :class="{
           'ash-background-success-light': true,
         }"
-        @click.prevent="simulateLink(item.id)"
+        @click.prevent="goToOperation(item.oId)"
       >
         <!-- TODO: change dynamic class to be marked 
         if there is available tasks for that operation -->
@@ -38,14 +39,6 @@ onMounted(() => {
               <div class="column">
                 {{ item.name }}
               </div>
-              <!-- <div class="column has-text-right">
-                <button
-                  :class="item.isChecked ? 'is-success' : 'is-cancel'"
-                  class="button"
-                >
-                  {{ `${item.isChecked ? " ✓ " : " ✗ "}` }}
-                </button>
-              </div> -->
             </label>
           </div>
         </div>

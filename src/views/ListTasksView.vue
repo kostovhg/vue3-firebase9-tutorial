@@ -1,13 +1,17 @@
 <script setup>
 import { RouterView, useRoute } from "vue-router";
-import { ref, onMounted, onUnmounted, inject, reactive } from "vue";
+import { ref, onMounted, onUnmounted, inject, reactive, watch } from "vue";
 import Task from "@/mappings/Task";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
 import TaskCard from "@/components/TaskCard.vue";
 import TaskSnapshot from "@/mappings/TaskSnapshot";
+import { useOpsStore } from "@/stores/useOpsStore";
+import { useTaskSnapStore } from "@/stores/useTaskSnapStore";
 
+const operationsStore = useOpsStore();
+const taskStore = useTaskSnapStore();
 const route = useRoute();
 const operationId = ref();
 const toast = useToast();
@@ -35,30 +39,28 @@ const toggleFinished = (t) => {
 };
 
 onMounted(() => {
-  tasks.value = inject("tasksData");
-  ops.value = inject("operationsData");
-
   operationId.value = route.params.oId;
-
-  // console.log("print from ListTaskView/onMounted > ops.value", ops.value);
+  ops.value = operationsStore.operations;
 
   const foundedOp = ops.value.find((item) => item.id === operationId.value);
   if (foundedOp) {
     opName.value = foundedOp.name;
-  } else {
-    opName.value = "None";
   }
 
-  try {
-    tasks.value.forEach((t) => {
-      if (t.data().cOp === operationId.value) {
-        operationTasks.push(new TaskSnapshot(t));
-      }
-    });
-    setTimeout(1000) 
-  } catch (e) {
-    console.log("Something wrong with getting tasks", e);
-  } finally {
+  // Watch for changes in taskStore.isLoading
+  watch(() => taskStore.isLoading, (newVal) => {
+    if (!newVal) {
+      tasks.value = taskStore.getTaskByOperation(operationId.value);
+      state.isLoading = false;
+      console.log('Tasks loaded:', tasks.value);
+    }
+  });
+
+  // Fetch tasks if not already fetched
+  if (!taskStore.tasks.length) {
+    taskStore.fetchTasks();
+  } else {
+    tasks.value = taskStore.getTaskByOperation(operationId.value);
     state.isLoading = false;
   }
 });
@@ -72,25 +74,25 @@ onMounted(() => {
       </div>
     </div>
   </section>
-  <!-- Show loading spinner while loading is true -->
+  
   <section class="section">
     <div v-if="state.isLoading">
+      <!-- Show loading spinner while loading is true -->
       <PulseLoader />
     </div>
-
-    <!-- Show list of tasks when done loading -->
-    <div v-else-if="3" class="is-multiline">
+    
+    <div v-else class="is-multiline">
+      <!-- Show list of tasks when done loading -->
       <TaskCard
-      v-for="task in operationTasks"
-        :key="task.data.number"
+        v-for="task in tasks"
+        :key="task.number"
         :task="task"
-        :operationId="task.data.cOp"  
+        :operationId="task.cOp"
         @start-work="toggleWorking(task)"
         @finish-task="toggleFinished(task)"
         @pause-work="toggleWorking(task)"
       />
     </div>
-    <div v-else>No operatioID</div>
   </section>
 </template>
 
@@ -100,7 +102,5 @@ onMounted(() => {
   z-index: 9999;
   position: absolute;
   left: 0px;
-  top: 0px; 
-  width: 100%;
-} */
+*/
 </style>

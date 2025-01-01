@@ -4,9 +4,12 @@
 */
 import { inject, provide } from "vue";
 import { RouterView } from "vue-router";
+import { useTaskSnapStore } from "./stores/useTaskSnapStore";
 
 // const operationsData = inject("operationsData");
 // const tasksData = inject("tasksData");
+const taskStore = useTaskSnapStore();
+taskStore.fetchTasks();
 </script>
 
 <template>

@@ -1,0 +1,59 @@
+{
+  "id": "J.24.098-98",
+  "cOp": "1",
+  "projectNumber": "J.24.098",
+  "finished": false,
+  "number": "J.24.098-98",
+  "client": "Dev team test",
+  "name": "Some name for testing purposes",
+  "createdAt": {
+    "seconds": 1734895254,
+    "nanoseconds": 591000000
+  },
+  "operations": {
+    "1": {
+      "timestamps": {
+        "start": {
+          "seconds": 1734898516,
+          "nanoseconds": 692000000
+        },
+        "finish": null,
+        "pause": [
+          {
+            "seconds": 1734899450,
+            "nanoseconds": 241000000
+          },
+          {
+            "seconds": 1734957046,
+            "nanoseconds": 784000000
+          }
+        ]
+      },
+      "status": "started"
+    },
+    "2": {
+      "status": "notStarted",
+      "timestamps": {
+        "finish": null,
+        "pause": [],
+        "start": null
+      }
+    },
+    "11": {
+      "status": "notStarted",
+      "timestamps": {
+        "pause": [],
+        "start": null,
+        "finish": null
+      }
+    },
+    "15": {
+      "status": "notStarted",
+      "timestamps": {
+        "finish": null,
+        "pause": [],
+        "start": null
+      }
+    }
+  }
+}
