@@ -24,12 +24,12 @@ const state = reactive({
   isLoading: true,
 });
 
-const toggleWorking = (t) => {
-  if (!t.data.isStarted) {
-    t.startOperation(operationId.value, new Date());
-  } else {
+const togglePauseWorking = (t) => {
     t.pauseOperation(operationId.value, new Date());
-  }
+};
+
+const toggleStartWorking = (t) => {
+  t.startOperation(operationId.value, new Date());
 };
 
 const toggleFinished = (t) => {
@@ -53,16 +53,24 @@ onMounted(() => {
       tasks.value = taskStore.getTaskByOperation(operationId.value);
       state.isLoading = false;
       console.log('Tasks loaded:', tasks.value);
+    } else {
+      state.isLoading = false;
+      console.log('Tasks loading...');
     }
   });
 
-  // Fetch tasks if not already fetched
-  if (!taskStore.tasks.length) {
-    taskStore.fetchTasks();
-  } else {
-    tasks.value = taskStore.getTaskByOperation(operationId.value);
-    state.isLoading = false;
-  }
+  // Watch for changes in value of taskStore.tasks and update tasks.value
+  watch(() => taskStore.tasks, (newVal) => {
+    tasks.value = newVal;
+  })
+
+  // check if tasks are already loaded
+  // if (tasks.value.length > 0) {
+  //   // tasks.value = taskStore.getTaskByOperation(operationId.value);
+  //   state.isLoading = false;
+  // } else {
+  //   tasks.value = taskStore.getTaskByOperation(operationId.value);
+  // }
 });
 </script>
 
@@ -88,9 +96,9 @@ onMounted(() => {
         :key="task.number"
         :task="task"
         :operationId="task.cOp"
-        @start-work="toggleWorking(task)"
+        @start-work="toggleStartWorking(task)"
         @finish-task="toggleFinished(task)"
-        @pause-work="toggleWorking(task)"
+        @pause-work="togglePauseWorking(task)"
       />
     </div>
   </section>

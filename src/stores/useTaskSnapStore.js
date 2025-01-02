@@ -66,13 +66,13 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     },
 
     // update a task
-    async updateTask(task) {
-      const taskRef = doc(db, 'tasks', task.number);
-      const toRecord = task.toFirestore();
+    async updateTask(taskId) {
+      const cTask = this.tasks[taskId];
+      const taskRef = doc(db, 'tasks', taskId);
       try {
-        await updateDoc(taskRef, toRecord);
-        console.log("Document updated with ID: ", task.number);
-        this.tasks[task.number] = { id: task.number, ...toRecord };
+        await updateDoc(taskRef, cTask);
+        console.log("Document updated with ID: ", taskId);
+        this.tasks[taskId] = { id: cTask.number, ...cTask };
       } catch (e) {
         console.error("Error updating document: ", e);
         throw e;
@@ -80,16 +80,61 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     },
 
     isPaused(task, operationId) {
-      return task.operations[operationId].timestamps.pause.length % 2 !== 0;
+      return this.tasks[task.number].operations[operationId].timestamps.pause.length % 2 !== 0;
     },
 
     isStarted(task, operationId) {
       return task.operations[operationId].status === 'started';
+    },
+
+    isBeingWorked(task, operationId) {
+      return this.isStarted(task, operationId) && !this.isPaused(task, operationId);
+    },
+
+    pauseTask(taskId, operationId) {
+      this.tasks[taskId].operations[operationId].timestamps.pause.push(new Date());
+      this.updateTask(taskId);
+    },
+
+    startTask(taskId, operationId) {
+      const cTask = this.tasks[taskId];
+      if (cTask.operations[operationId].status === 'notStarted') {
+        cTask.operations[operationId].status = 'started';
+        cTask.operations[operationId].timestamps.start = new Date();
+      } else {
+        this.pauseTask(taskId, operationId);
+      }
+      this.updateTask(taskId);
+    },
+
+    finishTask(taskId, operationId) {
+      const cTask = this.tasks[taskId];
+      cTask.operations[operationId].timestamps.finish = new Date();
+      cTask.operations[operationId].status = 'finished';
+      const tOps = this.getTaskOperations(taskId);
+      const nextIndex = tOps.indexOf(operationId) + 1;
+
+      if (tOps.length > nextIndex) {
+        cTask.cOp = tOps[nextIndex];
+      } else {
+        cTask.cOp = 0;
+        cTask.finished = true;
+      }
+      
+      this.updateTask(taskId)
     }
   },
   getters: {
     getLoading: (state) => state.isLoading,
     getTasks: (state) => state.tasks,
+    getTask: (state) => (taskId) => state.tasks[taskId],
+    getTaskOperations: (state) => (taskId) => Object.keys(state.tasks[taskId].operations),
+    /**
+     * Returns a list of tasks that belong to the given operation.
+     *
+     * @param {string} operationId - The operation ID to filter by.
+     * @returns {Task[]} - A list of tasks that belong to the given operation.
+     */
     getTaskByOperation: (state) => (operationId) => {
       return Object.values(state.tasks).filter((task) => task.cOp === operationId)
     }

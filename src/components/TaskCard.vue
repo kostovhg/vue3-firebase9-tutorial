@@ -21,21 +21,32 @@ const isStarted = ref(false);
 
 watch(() => tasksStore.tasks[task.value.id], (newVal) => {
   task.value = newVal;
-  isStarted.value = tasksStore.isPaused(task.value, opId.value);
+  isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
 }, { deep: true });
 
 const handleStartClick = () => {
-  emitEvents(isStarted.value ? "pause-work" : "start-work", props.task.number);
-  isStarted.value = !isStarted.value;
+  // console.log("TaskCard: handleStartClick ", tasksStore.tasks[task.value.id]);
+  // emitEvents(isStarted.value ? "pause-work" : "start-work", props.task.number);
+  // isStarted.value = !isStarted.value;
+  if (isStarted.value) {
+    tasksStore.pauseTask(task.value.id, opId.value);
+    isStarted.value = false;
+    // emitEvents("pause-work", task.value.number);
+  } else {
+    tasksStore.startTask(task.value.id, opId.value);
+    isStarted.value = true;
+    // emitEvents("start-work", task.value.number);
+  }
 };
 
 const passTask = () => {
-  emitEvents("finish-task", task.value.number);
+  // emitEvents("finish-task", task.value.number);
+  tasksStore.finishTask(task.value.id, opId.value);
 };
 
 onMounted(() => {
   opId.value = props.operationId;
-  isStarted.value = tasksStore.isPaused(task.value, opId.value);
+  isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
   tasksStore.subscribeToTask(task.value.id);
 });
 
@@ -58,8 +69,9 @@ onUnmounted(() => {
         :class="!isStarted ? 'is-success' : 'is-warning'"
         @click.prevent="handleStartClick"
       >
-        {{ `${isStarted.value ? " Pause " : " Start "}` }}
-        <i class="pi" :class="isStarted ? `pi-pause` : `pi-play`"></i>
+        {{ `${isStarted ? " Pause " : " Start "}` }}
+        <!-- <i class="pi" :class="isStarted ? `pi-pause` : `pi-play`"></i> -->
+        <i class="pi" :class="isStarted ? `pi-spin pi-cog`: `pi-play`" style="font-size:1.5em"> </i>
       </button>
 
       <button
@@ -68,7 +80,7 @@ onUnmounted(() => {
         :disabled="!isStarted"
         @click.prevent="passTask"
       >
-        {{ `Finish ${isStarted.value ? " ✓ " : " ✗ "}` }}
+        {{ `Finish ${isStarted ? " ✓ " : " ✗ "}` }}
       </button>
     </div>
     <div class="card-content">

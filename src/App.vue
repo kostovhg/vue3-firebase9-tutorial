@@ -9,6 +9,7 @@ import { useTaskSnapStore } from "./stores/useTaskSnapStore";
 // const operationsData = inject("operationsData");
 // const tasksData = inject("tasksData");
 const taskStore = useTaskSnapStore();
+console.log('Call fetchTasks from app.vue')
 taskStore.fetchTasks();
 </script>
 

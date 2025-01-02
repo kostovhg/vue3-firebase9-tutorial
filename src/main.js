@@ -5,8 +5,7 @@ import router from './router';
 import App from './App.vue';
 // import { getAllTasks } from './firebase';
 import ganttastic from '@infectoone/vue-ganttastic'
-
-// import 'primeicons/primeicons.css';
+import 'primeicons/primeicons.css';
 
 const app = createApp(App)
 const pinia = createPinia()
