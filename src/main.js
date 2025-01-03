@@ -3,7 +3,6 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import router from './router';
 import App from './App.vue';
-// import { getAllTasks } from './firebase';
 import ganttastic from '@infectoone/vue-ganttastic'
 import 'primeicons/primeicons.css';
 

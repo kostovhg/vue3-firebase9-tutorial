@@ -20,49 +20,53 @@ const state = reactive({
   isLoading: true,
 });
 
-const togglePauseWorking = (t) => {
-  t.pauseOperation(operationId.value, new Date());
-};
+// const togglePauseWorking = (t) => {
+//   t.pauseOperation(operationId.value, new Date());
+// };
 
-const toggleStartWorking = (t) => {
-  t.startOperation(operationId.value, new Date());
-};
+// const toggleStartWorking = (t) => {
+//   t.startOperation(operationId.value, new Date());
+// };
 
-const toggleFinished = (t) => {
-  console.log(t)
-  t.finishOperation(operationId.value);
-};
+// const toggleFinished = (t) => {
+//   console.log(t)
+//   t.finishOperation(operationId.value);
+// };
 
 onMounted(() => {
+  state.isLoading = true;
   operationId.value = route.params.oId;
   const ops = operationsStore.operations;
-
-  const foundedOp = ops.find((item) => item.id === operationId.value);
-  if (foundedOp) {
-    opName.value = foundedOp.name;
-  }
+  opName.value = ops[operationId.value].name;
 
   // Watch for changes in taskStore.isLoading
-  watch(
-    () => taskStore.isLoading,
-    (newVal) => {
-      if (!newVal) {
-        tasks.value = taskStore.getTasksByOperation(operationId.value);
-        state.isLoading = false;
-        console.log("Tasks loaded:", tasks.value);
-      } else {
-        state.isLoading = false;
-        console.log("Tasks loading...");
-      }
-    }
-  );
+  // watch(
+  //   () => taskStore.isLoading,
+  //   (newVal) => {
+  //     if (!newVal) {
+  //       state.isLoading = true;
+  //       tasks.value = taskStore.getTasksByOperation(operationId.value);
+  //       console.log("Tasks loaded:", tasks.value);
+  //       state.isLoading = false;
+  //     } else {
+  //       state.isLoading = false;
+  //       console.log("Tasks loading...");
+  //     }
+  //   }
+  // );
 
   // Watch for changes in taskStore.tasks
   watch(
     () => taskStore.tasks,
     (newVal) => {
+      if (!taskStore.isLoading) {
       tasks.value = taskStore.getTasksByOperation(operationId.value);
-      console.log("Tasks updated:", tasks.value);
+      console.log("Watch in ListTasksView: Tasks updated:", tasks.value);
+      }
+      if (taskStore.isLoading) {
+        taskStore.notify(`Tasks for ${opName.value} updated!`);
+      }
+      
     },
     { deep: true }
   );

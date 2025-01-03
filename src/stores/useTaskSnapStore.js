@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { collection, doc, onSnapshot, query, where, setDoc, serverTimestamp, getDocs, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 export const useTaskSnapStore = defineStore('taskSnap', {
   state: () => ({
     isLoading: false,
     tasks: {},
-    listeners: {}
+    listeners: {},
   }),
   actions: {
     // fetch all tasks
@@ -41,7 +43,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
         if (snapshot.exists()) {
           const updatedTask = { id: snapshot.id, ...snapshot.data() };
           this.tasks[taskId] = updatedTask;
-          console.log(`Task ${taskId} updated:`, updatedTask);
+          console.log(`Subscribed to ${taskId} :`, updatedTask);
         } else {
           delete this.tasks[taskId];
         }
@@ -99,6 +101,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     pauseTask(taskId, operationId) {
       this.tasks[taskId].operations[operationId].timestamps.pause.push(new Date());
       this.updateTask(taskId);
+      //this.notify(`Task ${taskId} paused with operation ${operationId}!`, 'warning');
     },
 
     startTask(taskId, operationId) {
@@ -106,6 +109,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       if (cTask.operations[operationId].status === 'notStarted') {
         cTask.operations[operationId].status = 'started';
         cTask.operations[operationId].timestamps.start = new Date();
+        //this.notify(`Task ${cTask.number} started with operation ${operationId}!`, 'success');
       } else {
         this.pauseTask(taskId, operationId);
       }
@@ -127,6 +131,27 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       }
       
       this.updateTask(taskId)
+      this.notify(`Task ${cTask.number} finish with operation ${operationId}!`, 'success');
+    },
+
+    notify(msg, msgType = 'info') {
+      switch  (msgType) {
+        case 'info':
+          this.toast.info(msg);
+          break;
+        case 'success':
+          this.toast.success(msg);
+          break;
+        case 'error':
+          this.toast.error(msg);
+          break;
+        case 'warning':
+          this.toast.warning(msg);
+          break;
+        default:
+          this.toast.info(msg);
+          break;
+      }
     }
   },
   getters: {
@@ -142,6 +167,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
      */
     getTasksByOperation: (state) => (operationId) => {
       return Object.values(state.tasks).filter((task) => task.cOp === operationId)
-    }
+    },
+    toast: () => useToast(),
   }
 })

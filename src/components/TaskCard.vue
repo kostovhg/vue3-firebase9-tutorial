@@ -1,6 +1,8 @@
 <script setup>
 import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useTaskSnapStore } from "@/stores/useTaskSnapStore";
+import { useToast } from "vue-toast-notification";
+import "vue-toast-notification/dist/theme-sugar.css";
 
 const tasksStore = useTaskSnapStore();
 const emitEvents = defineEmits(["start-work", "pause-work", "finish-task"]);
@@ -31,10 +33,12 @@ const handleStartClick = () => {
   if (isStarted.value) {
     tasksStore.pauseTask(task.value.id, opId.value);
     isStarted.value = false;
+    useToast().info(`Task ${task.value.number} paused!`);
     // emitEvents("pause-work", task.value.number);
   } else {
     tasksStore.startTask(task.value.id, opId.value);
     isStarted.value = true;
+    useToast().info(`Task ${task.value.number} started!`);
     // emitEvents("start-work", task.value.number);
   }
 };
@@ -42,6 +46,7 @@ const handleStartClick = () => {
 const passTask = () => {
   // emitEvents("finish-task", task.value);
   tasksStore.finishTask(task.value.id, opId.value);
+  useToast().warning(`Task ${task.value.number} finished!`);
 };
 
 onMounted(() => {
