@@ -15,7 +15,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       console.log('is loading true')
       const docsSnap = await getDocs(collection(db, 'tasks'));
 
-      console.log(docsSnap.docs)
+      // console.log(docsSnap.docs)
       if (docsSnap.empty) {
         console.log("No tasks found");
       } else {
@@ -23,6 +23,9 @@ export const useTaskSnapStore = defineStore('taskSnap', {
           acc[doc.id] = { id: doc.id, ...doc.data() };
           return acc;
         }, {});
+        Object.keys(this.tasks).forEach((taskId) => {
+          this.subscribeToTask(taskId);
+        });
         console.log('Store tasks "this.tasks"', this.tasks)
       }
       console.log('is loading false')
@@ -36,7 +39,9 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       const taskRef = doc(db, 'tasks', taskId)
       this.listeners[taskId] = onSnapshot(taskRef, (snapshot) => {
         if (snapshot.exists()) {
-          this.tasks[taskId] = { id: snapshot.id, ...snapshot.data() }
+          const updatedTask = { id: snapshot.id, ...snapshot.data() };
+          this.tasks[taskId] = updatedTask;
+          console.log(`Task ${taskId} updated:`, updatedTask);
         } else {
           delete this.tasks[taskId];
         }
@@ -135,7 +140,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
      * @param {string} operationId - The operation ID to filter by.
      * @returns {Task[]} - A list of tasks that belong to the given operation.
      */
-    getTaskByOperation: (state) => (operationId) => {
+    getTasksByOperation: (state) => (operationId) => {
       return Object.values(state.tasks).filter((task) => task.cOp === operationId)
     }
   }

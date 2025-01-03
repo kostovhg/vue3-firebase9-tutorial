@@ -40,7 +40,7 @@ const handleStartClick = () => {
 };
 
 const passTask = () => {
-  // emitEvents("finish-task", task.value.number);
+  // emitEvents("finish-task", task.value);
   tasksStore.finishTask(task.value.id, opId.value);
 };
 

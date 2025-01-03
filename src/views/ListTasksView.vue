@@ -1,12 +1,10 @@
 <script setup>
 import { RouterView, useRoute } from "vue-router";
-import { ref, onMounted, onUnmounted, inject, reactive, watch } from "vue";
-import Task from "@/mappings/Task";
+import { ref, onMounted, reactive, watch } from "vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
 import TaskCard from "@/components/TaskCard.vue";
-import TaskSnapshot from "@/mappings/TaskSnapshot";
 import { useOpsStore } from "@/stores/useOpsStore";
 import { useTaskSnapStore } from "@/stores/useTaskSnapStore";
 
@@ -16,8 +14,6 @@ const route = useRoute();
 const operationId = ref();
 const toast = useToast();
 const opName = ref("");
-const operationTasks = reactive([]);
-const ops = ref([]);
 const tasks = ref([]);
 
 const state = reactive({
@@ -25,7 +21,7 @@ const state = reactive({
 });
 
 const togglePauseWorking = (t) => {
-    t.pauseOperation(operationId.value, new Date());
+  t.pauseOperation(operationId.value, new Date());
 };
 
 const toggleStartWorking = (t) => {
@@ -33,44 +29,47 @@ const toggleStartWorking = (t) => {
 };
 
 const toggleFinished = (t) => {
+  console.log(t)
   t.finishOperation(operationId.value);
-  operationTasks.splice(operationTasks.indexOf(t), 1);
-  toast.success(`Operation ${t.cOp} finished`);
 };
 
 onMounted(() => {
   operationId.value = route.params.oId;
-  ops.value = operationsStore.operations;
+  const ops = operationsStore.operations;
 
-  const foundedOp = ops.value.find((item) => item.id === operationId.value);
+  const foundedOp = ops.find((item) => item.id === operationId.value);
   if (foundedOp) {
     opName.value = foundedOp.name;
   }
 
   // Watch for changes in taskStore.isLoading
-  watch(() => taskStore.isLoading, (newVal) => {
-    if (!newVal) {
-      tasks.value = taskStore.getTaskByOperation(operationId.value);
-      state.isLoading = false;
-      console.log('Tasks loaded:', tasks.value);
-    } else {
-      state.isLoading = false;
-      console.log('Tasks loading...');
+  watch(
+    () => taskStore.isLoading,
+    (newVal) => {
+      if (!newVal) {
+        tasks.value = taskStore.getTasksByOperation(operationId.value);
+        state.isLoading = false;
+        console.log("Tasks loaded:", tasks.value);
+      } else {
+        state.isLoading = false;
+        console.log("Tasks loading...");
+      }
     }
-  });
+  );
 
-  // Watch for changes in value of taskStore.tasks and update tasks.value
-  watch(() => taskStore.tasks, (newVal) => {
-    tasks.value = newVal;
-  })
+  // Watch for changes in taskStore.tasks
+  watch(
+    () => taskStore.tasks,
+    (newVal) => {
+      tasks.value = taskStore.getTasksByOperation(operationId.value);
+      console.log("Tasks updated:", tasks.value);
+    },
+    { deep: true }
+  );
 
-  // check if tasks are already loaded
-  // if (tasks.value.length > 0) {
-  //   // tasks.value = taskStore.getTaskByOperation(operationId.value);
-  //   state.isLoading = false;
-  // } else {
-  //   tasks.value = taskStore.getTaskByOperation(operationId.value);
-  // }
+  // Initial load of tasks
+  tasks.value = taskStore.getTasksByOperation(operationId.value);
+  state.isLoading = false;
 });
 </script>
 
@@ -82,13 +81,13 @@ onMounted(() => {
       </div>
     </div>
   </section>
-  
+
   <section class="section">
     <div v-if="state.isLoading">
       <!-- Show loading spinner while loading is true -->
       <PulseLoader />
     </div>
-    
+
     <div v-else class="is-multiline">
       <!-- Show list of tasks when done loading -->
       <TaskCard
