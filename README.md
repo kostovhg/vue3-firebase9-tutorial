@@ -1,29 +1,23 @@
-# vue3-firebase9-tutorial
+# Task Recorder
 
-This template should help get you started developing with Vue 3 in Vite.
+***Currently in Testing stage.***
 
-## Recommended IDE Setup
+Single page application for tracking projects production sequence.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Functionality
 
-## Customize configuration
+- [x] Add tasks
+- [x] Update tasks
+- [x] Dynamically update tasks in all clients
+- [ ] Add authentication
+- [ ] Add priorities
+- [ ] Add styling for properties
+- [ ] Cockpit view
+- [ ] **Reporting**
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+### Used technologies
 
-## Project Setup
+[Vue](https://vuejs.org/) | [Vite](https://vitejs.dev/) | [Vue Router](https://router.vuejs.org/) | [Pinia](https://pinia.vuejs.org/)
+[Firebase](https://firebase.google.com/)
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+![alt text](image.png)
