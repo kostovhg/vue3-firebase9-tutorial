@@ -22,6 +22,9 @@ export default class Task {
         this.createdAt = data.createdAt || 'to be filled in firebase/index.js';
         this.cOp = data.cOp || '1';
         this.finished = data.finished || false;
+        this.dueDate = data.dueDate || null;
+        this.priority = data.priority || 0;
+
 
 
         // Initialize operations

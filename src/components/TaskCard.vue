@@ -15,36 +15,51 @@ const props = defineProps({
     type: String,
     required: true,
   },
-}); 
+});
+
+const priorityColorMatch = (priority) => {
+  switch (priority) {
+    case 1:
+      return "has-background-dark";
+    case 2:
+      return "has-background-link";
+    case 3:
+      return "has-background-warning";
+    case 4:
+      return "has-background-danger";
+    case 5:
+      return "has-background-danger-light";
+    default:
+      return "";
+  }
+};
 
 const task = ref(props.task);
 const opId = ref(props.operationId);
 const isStarted = ref(false);
 
-watch(() => tasksStore.tasks[task.value.id], (newVal) => {
-  task.value = newVal;
-  isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
-}, { deep: true });
+watch(
+  () => tasksStore.tasks[task.value.id],
+  (newVal) => {
+    task.value = newVal;
+    isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
+  },
+  { deep: true }
+);
 
 const handleStartClick = () => {
-  // console.log("TaskCard: handleStartClick ", tasksStore.tasks[task.value.id]);
-  // emitEvents(isStarted.value ? "pause-work" : "start-work", props.task.number);
-  // isStarted.value = !isStarted.value;
   if (isStarted.value) {
     tasksStore.pauseTask(task.value.id, opId.value);
     isStarted.value = false;
     useToast().info(`Task ${task.value.number} paused!`);
-    // emitEvents("pause-work", task.value.number);
   } else {
     tasksStore.startTask(task.value.id, opId.value);
     isStarted.value = true;
     useToast().info(`Task ${task.value.number} started!`);
-    // emitEvents("start-work", task.value.number);
   }
 };
 
 const passTask = () => {
-  // emitEvents("finish-task", task.value);
   tasksStore.finishTask(task.value.id, opId.value);
   useToast().warning(`Task ${task.value.number} finished!`);
 };
@@ -75,8 +90,12 @@ onUnmounted(() => {
         @click.prevent="handleStartClick"
       >
         {{ `${isStarted ? " Pause " : " Start "}` }}
-        <!-- <i class="pi" :class="isStarted ? `pi-pause` : `pi-play`"></i> -->
-        <i class="pi" :class="isStarted ? `pi-spin pi-cog`: `pi-play`" style="font-size:1.5em"> </i>
+        <i
+          class="pi"
+          :class="isStarted ? `pi-spin pi-cog` : `pi-play`"
+          style="font-size: 1.5em"
+        >
+        </i>
       </button>
 
       <button

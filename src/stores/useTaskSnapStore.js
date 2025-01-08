@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { useLocalStorage } from "@vueuse/core";
 import { collection, doc, onSnapshot, query, where, setDoc, serverTimestamp, getDocs, updateDoc } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useToast } from "vue-toast-notification";
@@ -7,17 +8,18 @@ import "vue-toast-notification/dist/theme-sugar.css";
 export const useTaskSnapStore = defineStore('taskSnap', {
   state: () => ({
     isLoading: false,
-    tasks: {},
+    // tasks: {},
+    tasks: useLocalStorage('tasks', () => ({})),
     listeners: {},
   }),
   actions: {
-    // fetch all tasks
     async fetchTasks() {
+      if (Object.keys(this.tasks).length > 0) {
+        return; // Tasks already fetched
+      }
+      console.log('Fetching tasks (isLoading == true) ...')
       this.isLoading = true;
-      console.log('is loading true')
       const docsSnap = await getDocs(collection(db, 'tasks'));
-
-      // console.log(docsSnap.docs)
       if (docsSnap.empty) {
         console.log("No tasks found");
       } else {
@@ -25,16 +27,12 @@ export const useTaskSnapStore = defineStore('taskSnap', {
           acc[doc.id] = { id: doc.id, ...doc.data() };
           return acc;
         }, {});
-        Object.keys(this.tasks).forEach((taskId) => {
-          this.subscribeToTask(taskId);
-        });
-        console.log('Store tasks "this.tasks"', this.tasks)
+        
       }
-      console.log('is loading false')
+      console.log('Finish fetching tasks (isLoading == false). Tasks: ', this.tasks)
       this.isLoading = false;
     },
 
-    // subscribe to a task
     subscribeToTask(taskId) {
       if (this.listeners[taskId]) return
 
@@ -57,10 +55,37 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       }
     },
 
+    subscribeToPrecedingTasks(operationId) {
+      Object.values(this.tasks).forEach(task => {
+        if (task.cOp < operationId) {
+          this.subscribeToTask(task.id);
+        }
+      });
+    },
+
     // add a task
     async addTask(task) {
       const taskRef = doc(db, 'tasks', task.number);
-      const toRecord = task.toFirestore();
+      // const toRecord = task.toFirestore();
+      task.finished = false;
+      task.projectNumber = task.number.split('-')[0];
+      task.cOp = "1";
+      const operationsList = task.operations.sort((a, b) => a - b);
+
+      if (Array.isArray(task.operations) && operationsList.length > 0) {
+        task.operations = {};
+        operationsList.forEach(op => {
+          task.operations[op] = {
+            status: 'notStarted',
+            timestamps: { start: null, pause: [], finish: null }
+          };
+        });
+      } else if (typeof task.operations === 'object' && task.operations !== null) {
+        this.operations = data.operations;
+      } else {
+        throw new Error('Invalid operations format');
+      }
+      const toRecord = task;
       toRecord.createdAt = serverTimestamp();
       try {
         await setDoc(taskRef, toRecord);
@@ -129,13 +154,19 @@ export const useTaskSnapStore = defineStore('taskSnap', {
         cTask.cOp = 0;
         cTask.finished = true;
       }
-      
+
       this.updateTask(taskId)
       this.notify(`Task ${cTask.number} finish with operation ${operationId}!`, 'success');
     },
 
+    // unsubscribeToTasks(tasksArray) {
+    //   tasksArray.forEach(task => {
+    //     this.unsubscribeToTask(task.id);
+    //   });
+    // },
+
     notify(msg, msgType = 'info') {
-      switch  (msgType) {
+      switch (msgType) {
         case 'info':
           this.toast.info(msg);
           break;
@@ -158,15 +189,12 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     getLoading: (state) => state.isLoading,
     getTasks: (state) => state.tasks,
     getTask: (state) => (taskId) => state.tasks[taskId],
-    getTaskOperations: (state) => (taskId) => Object.keys(state.tasks[taskId].operations),
-    /**
-     * Returns a list of tasks that belong to the given operation.
-     *
-     * @param {string} operationId - The operation ID to filter by.
-     * @returns {Task[]} - A list of tasks that belong to the given operation.
-     */
     getTasksByOperation: (state) => (operationId) => {
-      return Object.values(state.tasks).filter((task) => task.cOp === operationId)
+      console.log('getTasksByOperation', operationId)
+      return Object.values(state.tasks).filter((task) => task.cOp === operationId).sort((a, b) => a.cOp - b.cOp)
+    },
+    getPrecedingTasks: (state) => (operationId) => {
+      return Object.values(state.tasks).filter((task) => task.cOp <= operationId).sort((a, b) => a.cOp - b.cOp)
     },
     toast: () => useToast(),
   }

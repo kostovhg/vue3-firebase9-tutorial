@@ -32,7 +32,8 @@ const state = reactive({
 const addNewTask = async () => {
   // console.log(taskModel);
 
-  const newTaskModel = new Task(taskModel);
+  // const newTaskModel = new Task(taskModel);
+  const newTaskModel = { ...taskModel };
   // console.log(newTaskModel);
   // try {
   //   await addTask(newTaskModel);
@@ -110,6 +111,19 @@ onMounted(async () => {
             required
           />
         </p>
+        <div class="control is-expanded radios">
+          Priority:
+          <label v-for="n in 5" :key="n" class="radio" @click="taskModel.priority = n">
+            <input
+              :value="n"
+              v-model="taskModel.priority"
+              type="radio"
+              name="priority"
+              required
+            />
+            {{ n }}
+          </label>
+        </div>
       </div>
       <div class="field is-grouped is grouped mb-5">
         <p class="control is-expanded">
@@ -134,6 +148,16 @@ onMounted(async () => {
             required
           />
         </p>
+        <p class="control is-expanded">
+          <input
+            v-model.lazy="taskModel.dueDate"
+            class="input"
+            type="date"
+            id="dueDate"
+            placeholder="Due Date"
+            @change="checkInput"
+          />
+        </p>
       </div>
     </form>
     <div v-if="state.isLoading">
@@ -146,9 +170,7 @@ onMounted(async () => {
         ref="item"
         class="card column is-half mb-5"
         :class="{
-          'ash-background-success-light': taskModel.operations.includes(
-            item.id
-          ),
+          'ash-background-success-light': taskModel.operations.includes(item.id),
         }"
         @click.prevent="toggleItemCheckbox(item)"
       >
