@@ -24,8 +24,9 @@ onMounted(async () => {
   state.isLoading = true;
   operationId.value = route.params.oId;
   const ops = operationsStore.operations;
-  opName.value = ops.find((op) => op.oId === operationId.value).name;
+  opName.value = ops.find((op) => op.oId === operationId.value).bgName;
 
+  taskStore.operation = operationId.value;
   taskStore.subscribeToPrecedingTasks(operationId.value);
 
   watch(
@@ -50,13 +51,18 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="section">
+  <!-- <section class="section">
     <div class="navbar is-dark is-fixed-top is">
       <div class="panel">
-        <h1 class="panel-heading">List Tasks for {{ opName }}</h1>
+        <h1 class="panel-heading">
+          Списък със проекти за {{ opName }}
+          <a class="is-active has-text-right" @click.prevent="$router.push('/')"
+            >Начало</a
+          >
+        </h1>
       </div>
     </div>
-  </section>
+  </section> -->
 
   <section class="section">
     <div v-if="state.isLoading">
@@ -65,7 +71,7 @@ onMounted(async () => {
     </div>
 
     <div v-else-if="currentTasks.length === 0" class="is-multiline">
-      <div class="title has-text-centered">No tasks for {{ opName }} yet</div>
+      <div class="title has-text-centered">Все още няма проекти за {{ opName }}</div>
     </div>
 
     <div v-else class="is-multiline">

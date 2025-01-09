@@ -10,12 +10,17 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     isLoading: false,
     // tasks: {},
     tasks: useLocalStorage('tasks', () => ({})),
+    operation: 0,
     listeners: {},
   }),
+  persist: true,
   actions: {
     async fetchTasks() {
       if (Object.keys(this.tasks).length > 0) {
         return; // Tasks already fetched
+      }
+      if (localStorage.getItem('tasks')) {
+        return;
       }
       console.log('Fetching tasks (isLoading == true) ...')
       this.isLoading = true;
@@ -27,7 +32,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
           acc[doc.id] = { id: doc.id, ...doc.data() };
           return acc;
         }, {});
-        
+
       }
       console.log('Finish fetching tasks (isLoading == false). Tasks: ', this.tasks)
       this.isLoading = false;

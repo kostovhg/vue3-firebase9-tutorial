@@ -5,6 +5,7 @@
 // import { inject, provide } from "vue";
 import { RouterView } from "vue-router";
 import { useTaskSnapStore } from "./stores/useTaskSnapStore";
+import NavBar from "@/components/NavBar.vue";
 
 // const operationsData = inject("operationsData");
 // const tasksData = inject("tasksData");
@@ -15,6 +16,7 @@ taskStore.fetchTasks();
 
 <template>
   <div id="app">
+    <NavBar />
     <router-view />
   </div>
 </template>
