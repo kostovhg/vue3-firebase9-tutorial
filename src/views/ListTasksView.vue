@@ -27,7 +27,7 @@ onMounted(async () => {
   opName.value = ops.find((op) => op.oId === operationId.value).bgName;
 
   taskStore.operation = operationId.value;
-  // taskStore.subscribeToPrecedingTasks(operationId.value);
+  taskStore.subscribeToPrecedingTasks(operationId.value);
 
   watch(
     () => taskStore.tasks,
@@ -41,7 +41,7 @@ onMounted(async () => {
         if (index !== -1) {
           currentTasks.value[index] = task;
         } else {
-          // currentTasks.value.push(task);
+          currentTasks.value.push(task);
           console.log("Passing unchanget task: ", task);
         }
       });
