@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from "vue-router";
-import { ref, onMounted, reactive, watch, onUnmounted } from "vue";
+import { ref, onMounted, reactive, watch } from "vue";
 import { useToast } from "vue-toast-notification";
 import "vue-toast-notification/dist/theme-sugar.css";
 import PulseLoader from "vue-spinner/src/PulseLoader.vue";
@@ -27,7 +27,7 @@ onMounted(async () => {
   opName.value = ops.find((op) => op.oId === operationId.value).bgName;
 
   taskStore.operation = operationId.value;
-  taskStore.subscribeToPrecedingTasks(operationId.value);
+  // taskStore.subscribeToPrecedingTasks(operationId.value);
 
   watch(
     () => taskStore.tasks,
@@ -35,7 +35,16 @@ onMounted(async () => {
       if (state.isLoading) {
         return;
       }
-      currentTasks.value = taskStore.getTasksByOperation(operationId.value);
+      const updatedTasks = taskStore.getPrecedingTasks(operationId.value);
+      updatedTasks.forEach((task) => {
+        const index = currentTasks.value.findIndex((t) => t.id === task.id);
+        if (index !== -1) {
+          currentTasks.value[index] = task;
+        } else {
+          // currentTasks.value.push(task);
+          console.log("Passing unchanget task: ", task);
+        }
+      });
       taskStore.notify(`Tasks for ${opName.value} updated!`);
     },
     { deep: true }
@@ -44,29 +53,11 @@ onMounted(async () => {
   currentTasks.value = taskStore.getTasksByOperation(operationId.value);
   state.isLoading = false;
 });
-
-// onUnmounted(() => {
-//   taskStore.unsubscribeToTasks(tasks.value);
-// });
 </script>
 
 <template>
-  <!-- <section class="section">
-    <div class="navbar is-dark is-fixed-top is">
-      <div class="panel">
-        <h1 class="panel-heading">
-          Списък със проекти за {{ opName }}
-          <a class="is-active has-text-right" @click.prevent="$router.push('/')"
-            >Начало</a
-          >
-        </h1>
-      </div>
-    </div>
-  </section> -->
-
   <section class="section">
     <div v-if="state.isLoading">
-      <!-- Show loading spinner while loading is true -->
       <PulseLoader />
     </div>
 
@@ -75,7 +66,6 @@ onMounted(async () => {
     </div>
 
     <div v-else class="is-multiline">
-      <!-- Show list of tasks when done loading -->
       <TaskCard
         v-for="task in currentTasks"
         :key="task.number"

@@ -8,7 +8,6 @@ import "vue-toast-notification/dist/theme-sugar.css";
 export const useTaskSnapStore = defineStore('taskSnap', {
   state: () => ({
     isLoading: false,
-    // tasks: {},
     tasks: useLocalStorage('tasks', () => ({})),
     operation: 0,
     listeners: {},
@@ -68,10 +67,8 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       });
     },
 
-    // add a task
     async addTask(task) {
       const taskRef = doc(db, 'tasks', task.number);
-      // const toRecord = task.toFirestore();
       task.finished = false;
       task.projectNumber = task.number.split('-')[0];
       task.cOp = "1";
@@ -102,7 +99,6 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       }
     },
 
-    // update a task
     async updateTask(taskId) {
       const cTask = this.tasks[taskId];
       const taskRef = doc(db, 'tasks', taskId);
@@ -131,7 +127,6 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     pauseTask(taskId, operationId) {
       this.tasks[taskId].operations[operationId].timestamps.pause.push(new Date());
       this.updateTask(taskId);
-      //this.notify(`Task ${taskId} paused with operation ${operationId}!`, 'warning');
     },
 
     startTask(taskId, operationId) {
@@ -139,7 +134,6 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       if (cTask.operations[operationId].status === 'notStarted') {
         cTask.operations[operationId].status = 'started';
         cTask.operations[operationId].timestamps.start = new Date();
-        //this.notify(`Task ${cTask.number} started with operation ${operationId}!`, 'success');
       } else {
         this.pauseTask(taskId, operationId);
       }
@@ -163,12 +157,6 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       this.updateTask(taskId)
       this.notify(`Task ${cTask.number} finish with operation ${operationId}!`, 'success');
     },
-
-    // unsubscribeToTasks(tasksArray) {
-    //   tasksArray.forEach(task => {
-    //     this.unsubscribeToTask(task.id);
-    //   });
-    // },
 
     notify(msg, msgType = 'info') {
       switch (msgType) {
@@ -195,11 +183,10 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     getTasks: (state) => state.tasks,
     getTask: (state) => (taskId) => state.tasks[taskId],
     getTasksByOperation: (state) => (operationId) => {
-      console.log('getTasksByOperation', operationId)
       return Object.values(state.tasks).filter((task) => task.cOp === operationId).sort((a, b) => a.cOp - b.cOp)
     },
     getPrecedingTasks: (state) => (operationId) => {
-      return Object.values(state.tasks).filter((task) => task.cOp <= operationId).sort((a, b) => a.cOp - b.cOp)
+      return Object.values(state.tasks).filter((task) => task.cOp > 0 && task.cOp <= operationId ).sort((a, b) => a.cOp - b.cOp)
     },
     toast: () => useToast(),
   }

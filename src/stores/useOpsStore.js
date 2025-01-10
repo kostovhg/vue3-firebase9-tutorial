@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 export const useOpsStore = defineStore("operations", {
     state: () => ({
         operations: [
-            { oId: "1", name: "Documents", bgName: "Доцументи"},
+            { oId: "1", name: "Documents", bgName: "Документи"},
             { oId: "2", name: "Supply", bgName: "Доставка" },
             { oId: "3", name: "Laser", bgName: "Лазер" },
             { oId: "4", name: "Grind", bgName: "Шлайф" },
@@ -24,6 +24,9 @@ export const useOpsStore = defineStore("operations", {
     actions: {
         getOperationName(id) {
             return this.operations.find(o => o.oId === id).name
+        },
+        getOperationBgName(id) {
+            return this.operations.find(o => o.oId === id).bgName
         }
     }
 });
