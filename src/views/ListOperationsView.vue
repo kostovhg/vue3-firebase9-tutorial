@@ -37,7 +37,7 @@ onMounted(() => {
           <div class="content">
             <label class="columns is-mobile is-centered">
               <div class="column">
-                {{ item.name }}
+                {{ item.bgName }}
               </div>
             </label>
           </div>

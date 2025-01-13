@@ -37,8 +37,7 @@ onMounted(() => {
   state.isLoading = true;
   operationId.value = route.params.oId;
   const ops = operationsStore.operations;
-  opName.value = ops[operationId.value].name;
-
+  opName.value = operationsStore.getOperationBgName(operationId.value);
   // Watch for changes in taskStore.isLoading
   // watch(
   //   () => taskStore.isLoading,
@@ -60,13 +59,12 @@ onMounted(() => {
     () => taskStore.tasks,
     (newVal) => {
       if (!taskStore.isLoading) {
-      tasks.value = taskStore.getTasksByOperation(operationId.value);
-      console.log("Watch in ListTasksView: Tasks updated:", tasks.value);
+        tasks.value = taskStore.getTasksByOperation(operationId.value);
+        console.log("Watch in ListTasksView: Tasks updated:", tasks.value);
       }
       if (taskStore.isLoading) {
         taskStore.notify(`Tasks for ${opName.value} updated!`);
       }
-      
     },
     { deep: true }
   );
@@ -81,7 +79,7 @@ onMounted(() => {
   <section class="section">
     <div class="navbar is-dark is-fixed-top is">
       <div class="panel">
-        <h1 class="panel-heading">List Tasks for {{ opName }}</h1>
+        <h1 class="panel-heading">Проекти за {{ opName }}</h1>
       </div>
     </div>
   </section>
