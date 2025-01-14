@@ -25,7 +25,7 @@ const getHeading = () => {
     case "/manage":
       return "Manage";
     default:
-      return `Aктивни проекти за ` + opsStore.getOperationBgName(route.params.oId);
+      return `Aктивни проекти за ${opsStore.getOperationBgName(route.params.oId)}`;
   }
 };
 </script>
@@ -41,7 +41,7 @@ const getHeading = () => {
       <a class="navbar-item" href="/">
         <img :src="brandImg" class="navbar-brand" alt="logo" />
       </a>
-      <h1 class="navbar-item">{{ getHeading() }}</h1>
+      <h1 class="navbar-item" style="align-content: baseline">{{ getHeading() }}</h1>
       <a
         role="button"
         class="navbar-burger"

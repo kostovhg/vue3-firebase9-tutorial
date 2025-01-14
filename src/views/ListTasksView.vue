@@ -27,7 +27,7 @@ onMounted(async () => {
   opName.value = ops.find((op) => op.oId === operationId.value).bgName;
 
   taskStore.operation = operationId.value;
-  taskStore.subscribeToPrecedingTasks(operationId.value);
+  taskStore.subscribeToPreviousTasks(operationId.value);
 
   watch(
     () => taskStore.tasks,
@@ -35,14 +35,14 @@ onMounted(async () => {
       if (state.isLoading) {
         return;
       }
-      const updatedTasks = taskStore.getPrecedingTasks(operationId.value);
+      const updatedTasks = taskStore.getPreviousOperationTasks(operationId.value);
       updatedTasks.forEach((task) => {
         const index = currentTasks.value.findIndex((t) => t.id === task.id);
         if (index !== -1) {
           currentTasks.value[index] = task;
         } else {
           currentTasks.value.push(task);
-          console.log("Passing unchanget task: ", task);
+          console.log("Passing unchanged task: ", task);
         }
       });
       taskStore.notify(`Tasks for ${opName.value} updated!`);
@@ -62,7 +62,7 @@ onMounted(async () => {
     </div>
 
     <div v-else-if="currentTasks.length === 0" class="is-multiline">
-      <div class="title has-text-centered">Все още няма проекти за {{ opName }}</div>
+      <div class="title has-text-centered">Все още няма проекти за <h1>{{ opName }}</h1></div>
     </div>
 
     <div v-else class="is-multiline">

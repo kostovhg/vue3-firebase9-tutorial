@@ -8,7 +8,7 @@ import "vue-toast-notification/dist/theme-sugar.css";
 export const useTaskSnapStore = defineStore('taskSnap', {
   state: () => ({
     isLoading: false,
-    tasks: useLocalStorage('tasks', () => ({})),
+    tasks: {},
     operation: 0,
     listeners: {},
   }),
@@ -18,9 +18,9 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       if (Object.keys(this.tasks).length > 0) {
         return; // Tasks already fetched
       }
-      if (localStorage.getItem('tasks')) {
-        return;
-      }
+      // if (localStorage.getItem('tasks')) {
+      //   return;
+      // }
       console.log('Fetching tasks (isLoading == true) ...')
       this.isLoading = true;
       const docsSnap = await getDocs(collection(db, 'tasks'));
@@ -45,7 +45,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
         if (snapshot.exists()) {
           const updatedTask = { id: snapshot.id, ...snapshot.data() };
           this.tasks[taskId] = updatedTask;
-          console.log(`Subscribed to ${taskId} :`, updatedTask);
+          console.log(`Subscribed to ${taskId}`);
         } else {
           delete this.tasks[taskId];
         }
@@ -64,6 +64,13 @@ export const useTaskSnapStore = defineStore('taskSnap', {
         if (task.cOp < operationId) {
           this.subscribeToTask(task.id);
         }
+      });
+    },
+
+    subscribeToPreviousTasks(operationId) {
+      const previousTasks = this.getPreviousOperationTasks(operationId);
+      previousTasks.forEach(task => {
+        this.subscribeToTask(task.id);
       });
     },
 
@@ -185,6 +192,15 @@ export const useTaskSnapStore = defineStore('taskSnap', {
     getTasksByOperation: (state) => (operationId) => {
       return Object.values(state.tasks).filter((task) => task.cOp === operationId).sort((a, b) => a.cOp - b.cOp)
     },
+    getPreviousOperationTasks: (state) => (opId) => {
+      return Object.values(state.tasks).filter(
+        (task) => {
+          const previousOperation = task.operations[Object.keys(task.operations).indexOf(opId)-1];
+          task.cOp>0 && task.cOp == previousOperation;
+        }
+      )
+    },
+
     getPrecedingTasks: (state) => (operationId) => {
       return Object.values(state.tasks).filter((task) => task.cOp > 0 && task.cOp <= operationId ).sort((a, b) => a.cOp - b.cOp)
     },
