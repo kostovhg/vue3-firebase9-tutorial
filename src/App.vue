@@ -9,9 +9,9 @@ import NavBar from "@/components/NavBar.vue";
 
 // const operationsData = inject("operationsData");
 // const tasksData = inject("tasksData");
-// const taskStore = useTaskSnapStore();
+const taskStore = useTaskSnapStore();
 // console.log('Call fetchTasks from app.vue')
-// taskStore.fetchTasks();
+taskStore.fetchTasks();
 </script>
 
 <template>
