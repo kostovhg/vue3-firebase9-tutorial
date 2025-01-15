@@ -151,7 +151,7 @@ export const useTaskSnapStore = defineStore('taskSnap', {
       const cTask = this.tasks[taskId];
       cTask.operations[operationId].timestamps.finish = new Date();
       cTask.operations[operationId].status = 'finished';
-      const tOps = this.getTaskOperations(taskId);
+      const tOps = Object.keys(cTask.operations);
       const nextIndex = tOps.indexOf(operationId) + 1;
 
       if (tOps.length > nextIndex) {

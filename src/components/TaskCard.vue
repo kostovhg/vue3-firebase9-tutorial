@@ -42,7 +42,15 @@ watch(
   () => tasksStore.tasks[task.value.id],
   (newVal) => {
     task.value = newVal;
-    isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
+    // isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
+    if (
+      task.value.operations[opId.value].timestamps.start !== null &&
+      task.value.operations[opId.value].timestamps.pause.length % 2 !== 0
+    ) {
+      isStarted.value = false;
+    } else {
+      isStarted.value = true;
+    }
   },
   { deep: true }
 );
@@ -67,6 +75,7 @@ const passTask = () => {
 onMounted(() => {
   opId.value = props.operationId;
   isStarted.value = tasksStore.isBeingWorked(task.value, opId.value);
+  console.log(isStarted.value);
   tasksStore.subscribeToTask(task.value.id);
 });
 
